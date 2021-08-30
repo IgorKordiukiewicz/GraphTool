@@ -2,6 +2,7 @@
 
 #include <SFML/Graphics/RenderWindow.hpp>
 #include <SFML/Graphics/Color.hpp>
+#include "GraphEditor.hpp"
 
 class Application
 {
@@ -16,4 +17,6 @@ private:
 private:
 	sf::RenderWindow window;
 	const sf::Color backgroundColor{ 30, 30, 30 };
+
+	GraphEditor graphEditor;
 };
