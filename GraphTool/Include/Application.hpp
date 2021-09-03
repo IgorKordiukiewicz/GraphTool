@@ -3,6 +3,8 @@
 #include <SFML/Graphics/RenderWindow.hpp>
 #include <SFML/Graphics/Color.hpp>
 #include "GraphEditor.hpp"
+#include "EditPanel.hpp"
+#include "AlgorithmsPanel.hpp"
 
 class Application
 {
@@ -19,4 +21,6 @@ private:
 	const sf::Color backgroundColor{ 30, 30, 30 };
 
 	GraphEditor graphEditor;
+	EditPanel editPanel;
+	AlgorithmsPanel algorithmsPanel;
 };

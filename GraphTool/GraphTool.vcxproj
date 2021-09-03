@@ -153,11 +153,15 @@
     <ClCompile Include="3rdParty\ImGui\imgui_tables.cpp" />
     <ClCompile Include="3rdParty\ImGui\imgui_widgets.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="Source\AlgorithmsPanel.cpp" />
     <ClCompile Include="Source\Application.cpp" />
+    <ClCompile Include="Source\EditPanel.cpp" />
     <ClCompile Include="Source\GraphEditor.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Include\AlgorithmsPanel.hpp" />
     <ClInclude Include="Include\Application.hpp" />
+    <ClInclude Include="Include\EditPanel.hpp" />
     <ClInclude Include="Include\Graph.hpp" />
     <ClInclude Include="Include\GraphEditor.hpp" />
   </ItemGroup>

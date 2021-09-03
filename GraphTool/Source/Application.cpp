@@ -38,10 +38,14 @@ void Application::run()
 			ImGuiWindowFlags_NoCollapse);
 
 		if (ImGui::BeginTabBar("MainTabBar")) {
-			if (ImGui::BeginTabItem("Graph Edit")) {
+			// Edit panel
+			if (ImGui::BeginTabItem("Edit")) {
+				editPanel();
 				ImGui::EndTabItem();
 			}
+			// Algorithms panel
 			if (ImGui::BeginTabItem("Algorithms")) {
+				algorithmsPanel();
 				ImGui::EndTabItem();
 			}
 
