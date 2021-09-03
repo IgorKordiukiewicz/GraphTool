@@ -1,9 +1,12 @@
 #pragma once
+
 #include <vector>
 #include <map>
 #include <set>
 #include <utility>
 #include <iostream>
+#include <algorithm>
+#include <memory>
 
 class Node
 {
@@ -12,8 +15,6 @@ public:
 		: id(id) {}
 	
 	const int id{ 0 };
-private:
-	std::vector<Node*> connectedNodes;
 };
 
 inline bool operator<(const Node& lhs, const Node& rhs) { return lhs.id < rhs.id; }
@@ -23,10 +24,10 @@ inline bool operator>=(const Node& lhs, const Node& rhs) { return !(rhs < lhs); 
 inline bool operator==(const Node& lhs, const Node& rhs) { return lhs.id == rhs.id; }
 inline bool operator!=(const Node& lhs, const Node& rhs) { return !(lhs == rhs); }
 
-enum class Directed
+enum class GraphType
 {
-	Yes,
-	No
+	Directed,
+	Undirected
 };
 
 struct Edge
@@ -37,63 +38,35 @@ struct Edge
 
 	Edge(int a, int b, int weight)
 		: a(a), b(b), weight(weight) {}
+
+	Edge() {}
 };
 
-template<Directed directed>
 class Graph
 {
 public:
-	inline void addEdge(int a, int b, int weight = 0)
-	{
-		// If nodes with id's a or b dont exist, add them to the nodes set
-		nodes.insert(Node{ a });
-		nodes.insert(Node{ b });
+	Graph(GraphType type);
 
-		// Create edge
-		Edge edge{ a, b, weight };
-		if constexpr (directed == Directed::Yes) {
-			edges.emplace(std::make_pair(a, b), edge);
-		}
-		else {
-			edges.emplace(std::make_pair(std::min(a, b), std::max(a, b)), edge);
-		}
+	void addEdge(int a, int b, int weight = 0);
 
-		// Update adjacency list
-		adjList[a].insert(b);
-		if constexpr (directed == Directed::No) {
-			adjList[b].insert(a);
-		}
-	}
+	void setEdgeWeight(int a, int b, int newWeight);
 
-	inline void setEdgeWeight(int a, int b, int newWeight)
-	{
-		if constexpr (directed == Directed::Yes) {
-			edges[{a, b}].weight = newWeight;
-		}
-		else {
-			edges[{std::min(a, b), std::max(a, b)}].weight = newWeight;
-		}
-	}
+	// Creates a new node and returns id of the node
+	int createNode();
 
-	inline void addNode(int id)
-	{
-		nodes.insert(Node{ id });
-	}
+	void makeDirected();
+	void makeUndirected();
+	bool isDirected() const { return type == GraphType::Directed; }
 
-	inline void print()
-	{
-		for (const auto& [key, values] : adjList) {
-			std::cout << key << ": ";
-			for (const auto& node : values) {
-				//std::cout << node.connectedToId << "(" << node.weight << ") ";
-				std::cout << node << " ";
-			}
-			std::cout << '\n';
-		}
-	}
+	bool doesNodeExist(int nodeId) const;
+	bool doesEdgeExist(int a, int b) const;
+
+	void print();
 
 private:
+	GraphType type;
 	std::map<int, std::set<int>> adjList;
 	std::set<Node> nodes;
 	std::map<std::pair<int, int>, Edge> edges;
+	int nextNodeId{ 1 };
 };

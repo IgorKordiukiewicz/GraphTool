@@ -5,6 +5,7 @@
 #include "GraphEditor.hpp"
 #include "EditPanel.hpp"
 #include "AlgorithmsPanel.hpp"
+#include "Graph.hpp"
 
 class Application
 {
@@ -23,4 +24,5 @@ private:
 	GraphEditor graphEditor;
 	EditPanel editPanel;
 	AlgorithmsPanel algorithmsPanel;
+	Graph graph;
 };

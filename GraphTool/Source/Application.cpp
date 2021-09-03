@@ -4,11 +4,12 @@
 #include <SFML/Graphics.hpp>
 
 Application::Application()
+	: graph(GraphType::Undirected), graphEditor(graph, window), editPanel(graph)
 {
 	// Initialize window
 	sf::ContextSettings contextSettings;
 	contextSettings.antialiasingLevel = 8;
-	window.create(sf::VideoMode(1600, 900), "Gravity Simulator", sf::Style::Default, contextSettings);
+	window.create(sf::VideoMode(1600, 900), "Graph Tool", sf::Style::Default, contextSettings);
 	window.setVerticalSyncEnabled(true);
 	window.setFramerateLimit(30);
 	ImGui::SFML::Init(window);
@@ -70,7 +71,7 @@ void Application::processEvents()
 	while (window.pollEvent(event)) {
 		ImGui::SFML::ProcessEvent(event);
 
-		graphEditor.processEvents(event, window);
+		graphEditor.processEvents(event);
 
 		if (event.type == sf::Event::Closed) {
 			window.close();

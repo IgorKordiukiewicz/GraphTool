@@ -156,14 +156,19 @@
     <ClCompile Include="Source\AlgorithmsPanel.cpp" />
     <ClCompile Include="Source\Application.cpp" />
     <ClCompile Include="Source\EditPanel.cpp" />
+    <ClCompile Include="Source\Graph.cpp" />
+    <ClCompile Include="Source\GraphEdgeShape.cpp" />
     <ClCompile Include="Source\GraphEditor.cpp" />
+    <ClCompile Include="Source\GraphNodeShape.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Include\AlgorithmsPanel.hpp" />
     <ClInclude Include="Include\Application.hpp" />
     <ClInclude Include="Include\EditPanel.hpp" />
     <ClInclude Include="Include\Graph.hpp" />
+    <ClInclude Include="Include\GraphEdgeShape.hpp" />
     <ClInclude Include="Include\GraphEditor.hpp" />
+    <ClInclude Include="Include\GraphNodeShape.hpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
