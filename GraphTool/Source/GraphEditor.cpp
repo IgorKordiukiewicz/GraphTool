@@ -35,7 +35,7 @@ void GraphEditor::processEvents(sf::Event& event)
 					if (auto [nodeA, nodeB] = std::pair{ heldEdge->getStartNodeId(), shape.getNodeId() }; !graph.doesEdgeExist(nodeA, nodeB)) {
 						graph.addEdge(nodeA, nodeB);
 						edgesShapes.push_back(GraphEdgeShape{ heldEdge->getStartPosition(), shape.getShape().getPosition(), nodeA, nodeB });
-						heldEdge = std::nullopt;
+						heldEdge.reset();
 					}				
 				}
 				// Create new edge shape
@@ -50,9 +50,20 @@ void GraphEditor::processEvents(sf::Event& event)
 			if (doubleClickClock.getElapsedTime().asSeconds() <= doubleClickDelay) {
 				const int newNodeId = graph.createNode();
 				nodesShapes.push_back(GraphNodeShape{ newNodeId, mousePosition, font });
+
+				// If user was holding an edge, attach it to the created node
+				if (heldEdge.has_value()) {
+					graph.addEdge(heldEdge->getStartNodeId(), newNodeId);
+					edgesShapes.push_back(GraphEdgeShape{heldEdge->getStartPosition(), mousePosition, heldEdge->getStartNodeId(), newNodeId});
+					heldEdge.reset();
+				}
 			}
 			doubleClickClock.restart();
 		}	
+	}
+	// Right mouse button to release stop holding an edge
+	if (event.type == sf::Event::MouseButtonPressed && event.key.code == sf::Mouse::Right && heldEdge.has_value()) {
+		heldEdge.reset();
 	}
 }
 
