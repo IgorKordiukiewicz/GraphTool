@@ -34,13 +34,13 @@ void GraphEditor::processEvents(sf::Event& event)
 					// Prevent having duplicate edge shapes
 					if (auto [nodeA, nodeB] = std::pair{ heldEdge->getStartNodeId(), shape.getNodeId() }; !graph.doesEdgeExist(nodeA, nodeB)) {
 						graph.addEdge(nodeA, nodeB);
-						edgesShapes.push_back(GraphEdgeShape{ heldEdge->getStartPosition(), shape.getShape().getPosition(), nodeA, nodeB });
+						edgesShapes.push_back(GraphEdgeShape{ heldEdge->getStartPosition(), shape.getShape().getPosition(), nodeA, nodeB, graph.getType() });
 						heldEdge.reset();
 					}				
 				}
 				// Create new edge shape
 				else {
-					heldEdge = GraphEdgeShape{shape.getShape().getPosition(), mousePosition, shape.getNodeId(), -1};
+					heldEdge = GraphEdgeShape{shape.getShape().getPosition(), mousePosition, shape.getNodeId(), -1, graph.getType()};
 				}
 			}
 		}
@@ -54,7 +54,7 @@ void GraphEditor::processEvents(sf::Event& event)
 				// If user was holding an edge, attach it to the created node
 				if (heldEdge.has_value()) {
 					graph.addEdge(heldEdge->getStartNodeId(), newNodeId);
-					edgesShapes.push_back(GraphEdgeShape{heldEdge->getStartPosition(), mousePosition, heldEdge->getStartNodeId(), newNodeId});
+					edgesShapes.push_back(GraphEdgeShape{heldEdge->getStartPosition(), mousePosition, heldEdge->getStartNodeId(), newNodeId, graph.getType() });
 					heldEdge.reset();
 				}
 			}

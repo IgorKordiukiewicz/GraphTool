@@ -57,6 +57,7 @@ public:
 	void makeDirected();
 	void makeUndirected();
 	bool isDirected() const { return type == GraphType::Directed; }
+	GraphType getType() const { return type; }
 
 	bool doesNodeExist(int nodeId) const;
 	bool doesEdgeExist(int a, int b) const;
