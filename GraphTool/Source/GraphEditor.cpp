@@ -8,6 +8,8 @@ GraphEditor::GraphEditor(Graph& graph, sf::RenderWindow& window)
 	if (!font.loadFromFile("Resources/AGENCYR.ttf")) {
 		std::cout << "Couldn't load font from file!\n";
 	}
+
+	graph.onGraphTypeChanged.connect("GraphEditor", this, &GraphEditor::onGraphTypeChanged);
 }
 
 void GraphEditor::processEvents(sf::Event& event)
@@ -90,5 +92,19 @@ void GraphEditor::draw(sf::RenderWindow& window)
 	
 	for (auto& nodeShape : nodesShapes) {
 		nodeShape.draw(window);
+	}
+}
+
+void GraphEditor::onGraphTypeChanged()
+{
+	if (graph.isDirected()) {
+		for (auto& edgeShape : edgesShapes) {
+			edgeShape.makeDirected();
+		}
+	}
+	else {
+		for (auto& edgeShape : edgesShapes) {
+			edgeShape.makeUndirected();
+		}
 	}
 }

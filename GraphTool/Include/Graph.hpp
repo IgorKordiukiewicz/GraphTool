@@ -1,12 +1,10 @@
 #pragma once
 
-#include <vector>
 #include <map>
 #include <set>
 #include <utility>
-#include <iostream>
 #include <algorithm>
-#include <memory>
+#include "Event.hpp"
 
 class Node
 {
@@ -24,28 +22,38 @@ inline bool operator>=(const Node& lhs, const Node& rhs) { return !(rhs < lhs); 
 inline bool operator==(const Node& lhs, const Node& rhs) { return lhs.id == rhs.id; }
 inline bool operator!=(const Node& lhs, const Node& rhs) { return !(lhs == rhs); }
 
+struct Edge
+{
+	int a{ 0 };
+	int b{ 0 };
+	// mutable so the weight of the edge inside a set can be changed (weight is not involved in comparisons)
+	mutable int weight{ 0 };
+
+	Edge(int a, int b, int weight = 0)
+		: a(a), b(b), weight(weight) {}
+
+	Edge() {}
+};
+
+inline bool operator<(const Edge& lhs, const Edge& rhs) { return lhs.a < rhs.a || (!(rhs.a < lhs.a) && lhs.b < rhs.b); }
+inline bool operator>(const Edge& lhs, const Edge& rhs) { return rhs < lhs; }
+inline bool operator<=(const Edge& lhs, const Edge& rhs) { return !(lhs < rhs); }
+inline bool operator>=(const Edge& lhs, const Edge& rhs) { return !(rhs < lhs); }
+inline bool operator==(const Edge& lhs, const Edge& rhs) { return (lhs.a == rhs.a && lhs.b == rhs.b); }
+inline bool operator!=(const Edge& lhs, const Edge& rhs) { return !(lhs == rhs); }
+
 enum class GraphType
 {
 	Directed,
 	Undirected
 };
 
-struct Edge
-{
-	int a{ 0 };
-	int b{ 0 };
-	int weight{ 0 };
-
-	Edge(int a, int b, int weight)
-		: a(a), b(b), weight(weight) {}
-
-	Edge() {}
-};
-
 class Graph
 {
 public:
 	Graph(GraphType type);
+
+	Event<> onGraphTypeChanged;
 
 	void addEdge(int a, int b, int weight = 0);
 
@@ -62,12 +70,20 @@ public:
 	bool doesNodeExist(int nodeId) const;
 	bool doesEdgeExist(int a, int b) const;
 
+private:
+	bool doesDirectedEdgeExist(int a, int b) const;
+	bool doesUndirectedEdgeExist(int a, int b) const;
+
 	void print();
+	void printEdges();
 
 private:
 	GraphType type;
 	std::map<int, std::set<int>> adjList;
 	std::set<Node> nodes;
-	std::map<std::pair<int, int>, Edge> edges;
 	int nextNodeId{ 1 };
+	// Directed & undirected edges are stored separately so user can easily switch between directed & undirected graph
+	std::set<Edge> directedEdges;
+	// Undirected edges are stored with .a being the smaller node id and .b being the bigger node id
+	std::set<Edge> undirectedEdges;
 };

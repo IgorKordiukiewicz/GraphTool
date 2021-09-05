@@ -6,6 +6,7 @@
 #include "EditPanel.hpp"
 #include "AlgorithmsPanel.hpp"
 #include "Graph.hpp"
+#include <memory>
 
 class Application
 {
@@ -21,8 +22,9 @@ private:
 	sf::RenderWindow window;
 	const sf::Color backgroundColor{ 30, 30, 30 };
 
-	GraphEditor graphEditor;
+	//GraphEditor graphEditor;
 	EditPanel editPanel;
 	AlgorithmsPanel algorithmsPanel;
 	Graph graph;
+	std::unique_ptr<GraphEditor> graphEditor;
 };

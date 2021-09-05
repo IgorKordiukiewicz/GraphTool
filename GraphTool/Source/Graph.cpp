@@ -1,4 +1,5 @@
 #include "../Include/Graph.hpp"
+#include <iostream>
 
 Graph::Graph(GraphType type)
 	: type(type)
@@ -14,13 +15,8 @@ void Graph::addEdge(int a, int b, int weight)
 	}
 
 	// Create edge
-	Edge edge{ a, b, weight };
-	if (isDirected()) {
-		edges.emplace(std::make_pair(a, b), edge);
-	}
-	else {
-		edges.emplace(std::make_pair(std::min(a, b), std::max(a, b)), edge);
-	}
+	directedEdges.insert(Edge{ a, b, weight });
+	undirectedEdges.insert(Edge{ std::min(a, b), std::max(a, b), weight });
 
 	// Update adjacency list
 	adjList[a].insert(b);
@@ -35,11 +31,11 @@ void Graph::setEdgeWeight(int a, int b, int newWeight)
 		return;
 	}
 	
-	if (isDirected()) {
-		edges[{a, b}].weight = newWeight;
+	if (doesDirectedEdgeExist(a, b)) {
+		directedEdges.find(Edge{ a, b })->weight = newWeight;
 	}
-	else {
-		edges[{std::min(a, b), std::max(a, b)}].weight = newWeight;
+	if (doesUndirectedEdgeExist(a, b)) {
+		undirectedEdges.find(Edge{ std::min(a, b), std::max(a, b) })->weight = newWeight;
 	}
 }
 
@@ -57,6 +53,7 @@ void Graph::makeDirected()
 	}
 
 	type = GraphType::Directed;
+	onGraphTypeChanged.emit();
 }
 
 void Graph::makeUndirected()
@@ -66,6 +63,7 @@ void Graph::makeUndirected()
 	}
 
 	type = GraphType::Undirected;
+	onGraphTypeChanged.emit();
 }
 
 bool Graph::doesNodeExist(int nodeId) const
@@ -75,12 +73,17 @@ bool Graph::doesNodeExist(int nodeId) const
 
 bool Graph::doesEdgeExist(int a, int b) const
 {
-	if (type == GraphType::Directed) {
-		return edges.find({ a, b }) != edges.end();
-	}
-	else {
-		return edges.find({ std::min(a, b), std::max(a, b) }) != edges.end();
-	}
+	return isDirected() ? doesDirectedEdgeExist(a, b) : doesUndirectedEdgeExist(a, b);
+}
+
+bool Graph::doesDirectedEdgeExist(int a, int b) const
+{
+	return directedEdges.find({ a, b }) != directedEdges.end();
+}
+
+bool Graph::doesUndirectedEdgeExist(int a, int b) const
+{
+	return undirectedEdges.find({ std::min(a, b), std::max(a, b) }) != undirectedEdges.end();
 }
 
 void Graph::print()
@@ -91,5 +94,19 @@ void Graph::print()
 			std::cout << node << " ";
 		}
 		std::cout << '\n';
+	}
+}
+
+void Graph::printEdges()
+{
+	if (isDirected()) {
+		for (const auto& edge : directedEdges) {
+			std::cout << edge.a << " " << edge.b << "\n";
+		}
+	}
+	else {
+		for (const auto& edge : undirectedEdges) {
+			std::cout << edge.a << " " << edge.b << "\n";
+		}
 	}
 }

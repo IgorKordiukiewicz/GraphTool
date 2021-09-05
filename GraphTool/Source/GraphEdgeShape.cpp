@@ -48,12 +48,17 @@ void GraphEdgeShape::updateVertices()
 
 		// If endNodeId is -1, it means that the edge is held by the user, otherwise it is attached to a node, 
 		// so the end position has to be recalculated so that the arrow head is not inside the node 
-		if (endNodeId != -1) {
-			endPosition = endPosition + dirVec / dirVecLength * 16.f; // 16 is the node shape radius (TODO: make it not hardcoded)
-		}
+		const sf::Vector2f endPositionFixed = [this, &dirVec, &dirVecLength]() {
+			if (endNodeId != -1) {
+				return endPosition + dirVec / dirVecLength * 16.f; // 16 is the node shape radius (TODO: make it not hardcoded)
+			}
+			else {
+				return endPosition;
+			}
+		}();
 
 		const sf::Vector2f dirVecNormalized = dirVec / dirVecLength;
-		const sf::Vector2f headBaseCenter = endPosition + dirVecNormalized * headHeight;
+		const sf::Vector2f headBaseCenter = endPositionFixed + dirVecNormalized * headHeight;
 		const sf::Vector2f dirVecOrth1 = { -dirVecNormalized.y, dirVecNormalized.x };
 		const sf::Vector2f dirVecOrth2 = { dirVecNormalized.y, -dirVecNormalized.x };
 		const float halfHeadWidth = headWidth / 2.f;
@@ -63,6 +68,6 @@ void GraphEdgeShape::updateVertices()
 		headVertices.clear();
 		headVertices.append(headPoint1);
 		headVertices.append(headPoint2);
-		headVertices.append(endPosition);
+		headVertices.append(endPositionFixed);
 	}
 }

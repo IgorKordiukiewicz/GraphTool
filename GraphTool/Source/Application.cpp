@@ -4,7 +4,7 @@
 #include <SFML/Graphics.hpp>
 
 Application::Application()
-	: graph(GraphType::Undirected), graphEditor(graph, window), editPanel(graph)
+	: graph(GraphType::Undirected), editPanel(graph)
 {
 	// Initialize window
 	sf::ContextSettings contextSettings;
@@ -13,6 +13,8 @@ Application::Application()
 	window.setVerticalSyncEnabled(true);
 	window.setFramerateLimit(30);
 	ImGui::SFML::Init(window);
+
+	graphEditor = std::make_unique<GraphEditor>(graph, window);
 }
 
 void Application::run()
@@ -25,7 +27,7 @@ void Application::run()
 		processEvents();
 
 		ImGui::SFML::Update(window, sf::seconds(deltaTime));
-		graphEditor.update(deltaTime);
+		graphEditor->update(deltaTime);
 
 		// Fixed imgui window size & position
 		ImGui::SetNextWindowSize(ImVec2{ static_cast<float>(window.getSize().x / 4), static_cast<float>(window.getSize().y) });
@@ -56,7 +58,7 @@ void Application::run()
 
 		window.clear(backgroundColor);
 
-		graphEditor.draw(window);
+		graphEditor->draw(window);
 
 		ImGui::SFML::Render(window);
 		window.display();
@@ -71,7 +73,7 @@ void Application::processEvents()
 	while (window.pollEvent(event)) {
 		ImGui::SFML::ProcessEvent(event);
 
-		graphEditor.processEvents(event);
+		graphEditor->processEvents(event);
 
 		if (event.type == sf::Event::Closed) {
 			window.close();
