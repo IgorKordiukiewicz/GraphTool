@@ -15,6 +15,9 @@ public:
 	void makeDirected();
 	void makeUndirected();
 
+	void makeOrthogonalOffsetEnabled();
+	void makeOrthogonalOffsetDisabled();
+
 	bool contains(const sf::Vector2f& point) const;
 
 	const sf::Vector2f& getStartPosition() const { return startPosition; }
@@ -37,4 +40,6 @@ private:
 	sf::VertexArray headVertices;
 	float headHeight = 10.f;
 	float headWidth = 11.5f;
+	float orthogonalOffset = 5.f;
+	bool isOrthogonalOffsetEnabled{ false };
 };

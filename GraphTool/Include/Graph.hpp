@@ -75,7 +75,7 @@ public:
 
 	bool doesNodeExist(int nodeId) const;
 	bool doesEdgeExist(int a, int b) const;
-
+	
 private:
 	bool doesDirectedEdgeExist(int a, int b) const;
 	bool doesUndirectedEdgeExist(int a, int b) const;

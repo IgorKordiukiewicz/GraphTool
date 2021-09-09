@@ -18,11 +18,9 @@ public:
 	void draw(sf::RenderWindow& window);
 
 private:
-	void onGraphTypeChanged();
-
-private:
 	std::vector<GraphNodeShape> nodesShapes;
-	std::vector<GraphEdgeShape> edgesShapes;
+	std::vector<GraphEdgeShape> directedEdgesShapes;
+	std::vector<GraphEdgeShape> undirectedEdgesShapes;
 
 	sf::Clock doubleClickClock;
 	const float doubleClickDelay{ 0.2f };
