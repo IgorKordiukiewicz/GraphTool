@@ -15,6 +15,8 @@ public:
 	void makeDirected();
 	void makeUndirected();
 
+	bool contains(const sf::Vector2f& point) const;
+
 	const sf::Vector2f& getStartPosition() const { return startPosition; }
 	const sf::Vector2f& getEndPosition() const { return endPosition; }
 	int getStartNodeId() const { return startNodeId; }

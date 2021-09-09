@@ -21,8 +21,8 @@ public:
 
 private:
 	sf::CircleShape shape;
-	const float radius{ 16.f };
+	float radius{ 16.f };
 	sf::Text text;
 
-	const int nodeId;
+	int nodeId;
 };

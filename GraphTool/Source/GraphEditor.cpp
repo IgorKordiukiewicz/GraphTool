@@ -20,34 +20,32 @@ void GraphEditor::processEvents(sf::Event& event)
 			static_cast<float>(window.getSize().x) * 0.75f, static_cast<float>(window.getSize().y) };
 		return graphViewRect.contains(sf::Vector2f(sf::Mouse::getPosition(window)));
 	};
+	const auto mousePosition = window.mapPixelToCoords({ event.mouseButton.x, event.mouseButton.y });
 	
-	if (event.type == sf::Event::MouseButtonPressed 
-		&& event.mouseButton.button == sf::Mouse::Left
-		&& isMouseInsideGraphEditor()) {
-		const auto mousePosition = window.mapPixelToCoords({ event.mouseButton.x, event.mouseButton.y });
+	if (event.type == sf::Event::MouseButtonPressed && event.mouseButton.button == sf::Mouse::Left && isMouseInsideGraphEditor()) {
 		// Check if mouse hovers over any of the nodes shapes
-		bool mouseOverNodeShape = false;
-		for (const auto& shape : nodesShapes) {
-			if (shape.getShape().getGlobalBounds().contains(mousePosition)) {
-				mouseOverNodeShape = true;
+		bool isMouseOverNodeShape = false;
+		for (const auto& nodeShape : nodesShapes) {
+			if (nodeShape.getShape().getGlobalBounds().contains(mousePosition)) {
+				isMouseOverNodeShape = true;
 
 				// If user was already holding an edge, attach it to this node
 				if (heldEdge.has_value()) {
 					// Prevent having duplicate edge shapes
-					if (auto [nodeA, nodeB] = std::pair{ heldEdge->getStartNodeId(), shape.getNodeId() }; !graph.doesEdgeExist(nodeA, nodeB)) {
+					if (auto [nodeA, nodeB] = std::pair{ heldEdge->getStartNodeId(), nodeShape.getNodeId() }; !graph.doesEdgeExist(nodeA, nodeB)) {
 						graph.addEdge(nodeA, nodeB);
-						edgesShapes.push_back(GraphEdgeShape{ heldEdge->getStartPosition(), shape.getShape().getPosition(), nodeA, nodeB, graph.getType() });
+						edgesShapes.push_back(GraphEdgeShape{ heldEdge->getStartPosition(), nodeShape.getShape().getPosition(), nodeA, nodeB, graph.getType() });
 						heldEdge.reset();
 					}				
 				}
 				// Create new edge shape
 				else {
-					heldEdge = GraphEdgeShape{shape.getShape().getPosition(), mousePosition, shape.getNodeId(), -1, graph.getType()};
+					heldEdge = GraphEdgeShape{ nodeShape.getShape().getPosition(), mousePosition, nodeShape.getNodeId(), -1, graph.getType()};
 				}
 			}
 		}
 
-		if (!mouseOverNodeShape) {
+		if (!isMouseOverNodeShape) {
 			// Double click to add new node
 			if (doubleClickClock.getElapsedTime().asSeconds() <= doubleClickDelay) {
 				const int newNodeId = graph.createNode();
@@ -63,7 +61,28 @@ void GraphEditor::processEvents(sf::Event& event)
 			doubleClickClock.restart();
 		}	
 	}
-	// Right mouse button to release stop holding an edge
+	if (event.type == sf::Event::MouseButtonPressed && event.key.code == sf::Mouse::Right && isMouseInsideGraphEditor()) {
+		// Delete node
+		bool isMouseOverNodeShape = false;
+		for (auto i = nodesShapes.size(); i--;) {
+			const auto& nodeShape = nodesShapes[i];
+			if (nodeShape.getShape().getGlobalBounds().contains(mousePosition)) {
+				isMouseOverNodeShape = true;
+				
+				graph.deleteNode(nodeShape.getNodeId());
+
+				// Delete edge shapes connected to the deleted node
+				edgesShapes.erase(std::remove_if(edgesShapes.begin(), edgesShapes.end(), [&nodeShape](const GraphEdgeShape& shape) {
+					return shape.getStartNodeId() == nodeShape.getNodeId() || shape.getEndNodeId() == nodeShape.getNodeId();
+					}), edgesShapes.end());
+
+				// Delete the node shapes
+				nodesShapes.erase(nodesShapes.begin() + i);
+			}
+		}
+		
+	}
+	// Right mouse button to stop holding an edge
 	if (event.type == sf::Event::MouseButtonPressed && event.key.code == sf::Mouse::Right && heldEdge.has_value()) {
 		heldEdge.reset();
 	}

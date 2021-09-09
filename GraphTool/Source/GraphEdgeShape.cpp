@@ -34,6 +34,16 @@ void GraphEdgeShape::makeUndirected()
 	updateVertices();
 }
 
+bool GraphEdgeShape::contains(const sf::Vector2f& point) const
+{
+	if (graphType == GraphType::Directed) {
+		return lineVertices.getBounds().contains(point) || headVertices.getBounds().contains(point);
+	}
+	else {
+		return lineVertices.getBounds().contains(point);
+	}
+}
+
 void GraphEdgeShape::updateVertices()
 {
 	lineVertices.clear();

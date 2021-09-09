@@ -33,6 +33,9 @@ struct Edge
 		: a(a), b(b), weight(weight) {}
 
 	Edge() {}
+
+	Edge(const Edge&) = default;
+	Edge& operator=(const Edge&) = default;
 };
 
 inline bool operator<(const Edge& lhs, const Edge& rhs) { return lhs.a < rhs.a || (!(rhs.a < lhs.a) && lhs.b < rhs.b); }
@@ -61,6 +64,9 @@ public:
 
 	// Creates a new node and returns id of the node
 	int createNode();
+
+	void deleteNode(int nodeId);
+	void deleteEdge(int a, int b);
 
 	void makeDirected();
 	void makeUndirected();

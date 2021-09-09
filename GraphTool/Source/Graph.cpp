@@ -46,6 +46,43 @@ int Graph::createNode()
 	return nextNodeId - 1;
 }
 
+void Graph::deleteNode(int nodeId)
+{
+	if (!doesNodeExist(nodeId)) {
+		return;
+	}
+
+	nodes.erase(nodeId);
+
+	adjList.erase(nodeId);
+	for (auto& [id, connectedIds] : adjList) {
+		connectedIds.erase(nodeId);
+	}
+
+	auto updateEdges = [nodeId](std::set<Edge>& edges) {
+		auto it = edges.begin();
+		while (it != edges.end()) {
+			if (it->a == nodeId || it->b == nodeId) {
+				it = edges.erase(it);
+			}
+			else {
+				++it;
+			}
+		}
+	};
+	updateEdges(directedEdges);
+	updateEdges(undirectedEdges);	
+}
+
+void Graph::deleteEdge(int a, int b)
+{
+	if (!doesNodeExist(a) || !doesNodeExist(b)) {
+		return;
+	}
+
+	// TODO
+}
+
 void Graph::makeDirected()
 {
 	if (isDirected()) {
