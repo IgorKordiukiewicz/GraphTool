@@ -18,11 +18,10 @@ void Graph::addEdge(int a, int b, int weight)
 	directedEdges.insert(Edge{ a, b, weight });
 	undirectedEdges.insert(Edge{ std::min(a, b), std::max(a, b), weight });
 
-	// Update adjacency list
-	adjList[a].insert(b);
-	if (!isDirected()) {
-		adjList[b].insert(a);
-	}
+	// Update adjacency lists
+	directedAdjList[a].insert(b);
+	undirectedAdjList[a].insert(b);
+	undirectedAdjList[b].insert(a);
 }
 
 void Graph::setEdgeWeight(int a, int b, int newWeight)
@@ -54,15 +53,23 @@ void Graph::deleteNode(int nodeId)
 
 	nodes.erase(nodeId);
 
-	adjList.erase(nodeId);
-	for (auto& [id, connectedIds] : adjList) {
-		connectedIds.erase(nodeId);
-	}
+	auto updateAdjList = [nodeId](auto& adjList) {
+		adjList.erase(nodeId);
+		for (auto& [id, connectedIds] : adjList) {
+			connectedIds.erase(nodeId);
+		}
+	};
+	updateAdjList(directedAdjList);
+	updateAdjList(undirectedAdjList);
 
-	auto updateEdges = [nodeId](std::set<Edge>& edges) {
+	std::vector<std::pair<int, int>> deletedDirectedEdges;
+	std::vector<std::pair<int, int>> deletedUndirectedEdges;
+
+	auto deleteEdges = [nodeId](auto& edges, auto& deletedEdges) {
 		auto it = edges.begin();
 		while (it != edges.end()) {
 			if (it->a == nodeId || it->b == nodeId) {
+				deletedEdges.push_back({ it->a, it->b });
 				it = edges.erase(it);
 			}
 			else {
@@ -70,8 +77,11 @@ void Graph::deleteNode(int nodeId)
 			}
 		}
 	};
-	updateEdges(directedEdges);
-	updateEdges(undirectedEdges);	
+	deleteEdges(directedEdges, deletedDirectedEdges);
+	deleteEdges(undirectedEdges, deletedUndirectedEdges);	
+
+	onDirectedEdgesDeleted.emit(std::move(deletedDirectedEdges));
+	onUndirectedEdgesDeleted.emit(std::move(deletedUndirectedEdges));
 }
 
 void Graph::deleteEdge(int a, int b)
@@ -80,7 +90,85 @@ void Graph::deleteEdge(int a, int b)
 		return;
 	}
 
-	// TODO
+	auto updateAdjList = [a, b](auto& adjList) {
+		for (auto& [id, connectedIds] : adjList) {
+			if (id == a || id == b) {
+				auto it = connectedIds.begin();
+				while (it != connectedIds.end()) {
+					if ((id == a && *it == b) || (id == b && *it == a)) {
+						it = connectedIds.erase(it);
+					}
+					else {
+						++it;
+					}
+				}
+			}
+		}
+	};
+
+	auto deleteEdges = [a, b](auto& edges, auto& deletedEdges) {
+		auto it = edges.begin();
+		while (it != edges.end()) {
+			if ((it->a == a && it->b == b) || (it->a == b && it->b == a)) {
+				deletedEdges.push_back({ it->a, it->b });
+				it = edges.erase(it);
+			}
+			else {
+				++it;
+			}
+		}
+	};
+
+	std::vector<std::pair<int, int>> deletedDirectedEdges;
+	std::vector<std::pair<int, int>> deletedUndirectedEdges;
+
+	if (isDirected()) {
+		// If there exists another edge connecting the A and B nodes, don't delete the undirected edge connecting them
+		if (doesDirectedEdgeExist(b, a)) {
+			for (auto& [id, connectedIds] : directedAdjList) {
+				if (id == a) {
+					auto it = connectedIds.begin();
+					while (it != connectedIds.end()) {
+						if (*it == b) {
+							it = connectedIds.erase(it);
+						}
+						else {
+							++it;
+						}
+					}
+				}
+			}
+
+			auto it = directedEdges.begin();
+			while (it != directedEdges.end()) {
+				if (it->a == a && it->b == b) {
+					deletedDirectedEdges.push_back({ a, b });
+					it = directedEdges.erase(it);
+				}
+				else {
+					++it;
+				}
+			}
+		}
+		else {
+			updateAdjList(directedAdjList);
+			updateAdjList(undirectedAdjList);
+
+			deleteEdges(directedEdges, deletedDirectedEdges);
+			deleteEdges(undirectedEdges, deletedUndirectedEdges);
+		}
+	}
+	// If graph is undirected, delete all directed edges connecting the A and B nodes
+	else {
+		updateAdjList(directedAdjList);
+		updateAdjList(undirectedAdjList);
+
+		deleteEdges(directedEdges, deletedDirectedEdges);
+		deleteEdges(undirectedEdges, deletedUndirectedEdges);
+	}
+
+	onDirectedEdgesDeleted.emit(std::move(deletedDirectedEdges));
+	onUndirectedEdgesDeleted.emit(std::move(deletedUndirectedEdges));
 }
 
 void Graph::makeDirected()
@@ -90,7 +178,6 @@ void Graph::makeDirected()
 	}
 
 	type = GraphType::Directed;
-	onGraphTypeChanged.emit();
 }
 
 void Graph::makeUndirected()
@@ -100,7 +187,6 @@ void Graph::makeUndirected()
 	}
 
 	type = GraphType::Undirected;
-	onGraphTypeChanged.emit();
 }
 
 bool Graph::doesNodeExist(int nodeId) const
@@ -123,27 +209,34 @@ bool Graph::doesUndirectedEdgeExist(int a, int b) const
 	return undirectedEdges.find({ std::min(a, b), std::max(a, b) }) != undirectedEdges.end();
 }
 
-void Graph::print()
+void Graph::print() const
 {
-	for (const auto& [key, values] : adjList) {
-		std::cout << key << ": ";
-		for (const auto& node : values) {
-			std::cout << node << " ";
+	auto printHelper = [](const auto& adjList) {
+		for (const auto& [key, values] : adjList) {
+			std::cout << key << ": ";
+			for (const auto& node : values) {
+				std::cout << node << " ";
+			}
+			std::cout << '\n';
 		}
-		std::cout << '\n';
-	}
+	};
+
+	std::cout << "Directed adjacency list\n";
+	printHelper(directedAdjList);
+	std::cout << "Undirected adjacency list\n";
+	printHelper(undirectedAdjList);
 }
 
-void Graph::printEdges()
+void Graph::printEdges() const
 {
-	if (isDirected()) {
-		for (const auto& edge : directedEdges) {
+	auto printHelper = [](const auto& edges) {
+		for (const auto& edge : edges) {
 			std::cout << edge.a << " " << edge.b << "\n";
 		}
-	}
-	else {
-		for (const auto& edge : undirectedEdges) {
-			std::cout << edge.a << " " << edge.b << "\n";
-		}
-	}
+	};
+
+	std::cout << "Directed edges\n";
+	printHelper(directedEdges);
+	std::cout << "Undirected edges\n";
+	printHelper(undirectedEdges);
 }

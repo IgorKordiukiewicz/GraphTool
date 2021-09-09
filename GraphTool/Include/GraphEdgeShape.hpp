@@ -3,13 +3,14 @@
 #include <SFML/Graphics/RenderWindow.hpp>
 #include <SFML/Graphics/VertexArray.hpp>
 #include "Graph.hpp"
+#include <array>
 
 class GraphEdgeShape
 {
 public:
 	GraphEdgeShape(const sf::Vector2f& startPosition, const sf::Vector2f& endPosition, int startNodeId, int endNodeId, GraphType graphType);
 
-	void draw(sf::RenderWindow& window);
+	void draw(sf::RenderWindow& window) const;
 
 	void setEndPosition(const sf::Vector2f& newEndPosition);
 	void makeDirected();
@@ -42,4 +43,10 @@ private:
 	float headWidth = 11.5f;
 	float orthogonalOffset = 5.f;
 	bool isOrthogonalOffsetEnabled{ false };
+	struct Rectangle 
+	{
+		sf::Vector2f a, b, c, d;
+		float width;
+		float height{ 4.f };
+	} lineBounds;
 };

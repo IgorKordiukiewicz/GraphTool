@@ -16,15 +16,7 @@ GraphNodeShape::GraphNodeShape(int nodeId, const sf::Vector2f& position, const s
 	text.setPosition(position);
 }
 
-void GraphNodeShape::processEvents(sf::Event& event, sf::RenderWindow& window)
-{
-}
-
-void GraphNodeShape::update(float deltaTime)
-{
-}
-
-void GraphNodeShape::draw(sf::RenderWindow& window)
+void GraphNodeShape::draw(sf::RenderWindow& window) const
 {
 	window.draw(shape);
 	window.draw(text);

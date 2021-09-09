@@ -17,6 +17,9 @@ public:
 	void update(float deltaTime);
 	void draw(sf::RenderWindow& window);
 
+	void onDirectedEdgesDeleted(std::vector<std::pair<int, int>> deletedEdges);
+	void onUndirectedEdgesDeleted(std::vector<std::pair<int, int>> deletedEdges);
+
 private:
 	std::vector<GraphNodeShape> nodesShapes;
 	std::vector<GraphEdgeShape> directedEdgesShapes;

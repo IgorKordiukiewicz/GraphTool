@@ -12,9 +12,7 @@ class GraphNodeShape
 public:
 	GraphNodeShape(int nodeId, const sf::Vector2f& position, const sf::Font& font);
 
-	void processEvents(sf::Event& event, sf::RenderWindow& window);
-	void update(float deltaTime);
-	void draw(sf::RenderWindow& window);
+	void draw(sf::RenderWindow& window) const;
 
 	const sf::CircleShape& getShape() const { return shape; }
 	int getNodeId() const { return nodeId; }

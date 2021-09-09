@@ -56,7 +56,8 @@ class Graph
 public:
 	Graph(GraphType type);
 
-	Event<> onGraphTypeChanged;
+	Event<std::vector<std::pair<int, int>>> onDirectedEdgesDeleted;
+	Event<std::vector<std::pair<int, int>>> onUndirectedEdgesDeleted;
 
 	void addEdge(int a, int b, int weight = 0);
 
@@ -80,12 +81,14 @@ private:
 	bool doesDirectedEdgeExist(int a, int b) const;
 	bool doesUndirectedEdgeExist(int a, int b) const;
 
-	void print();
-	void printEdges();
+public: // TEMP
+	void print() const;
+	void printEdges() const;
 
 private:
 	GraphType type;
-	std::map<int, std::set<int>> adjList;
+	std::map<int, std::set<int>> directedAdjList;
+	std::map<int, std::set<int>> undirectedAdjList;
 	std::set<Node> nodes;
 	int nextNodeId{ 1 };
 	// Directed & undirected edges are stored separately so user can easily switch between directed & undirected graph

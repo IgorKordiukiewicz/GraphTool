@@ -8,6 +8,9 @@ GraphEditor::GraphEditor(Graph& graph, sf::RenderWindow& window)
 	if (!font.loadFromFile("Resources/AGENCYR.ttf")) {
 		std::cout << "Couldn't load font from file!\n";
 	}
+
+	graph.onDirectedEdgesDeleted.connect("GraphEditor", this, &GraphEditor::onDirectedEdgesDeleted);
+	graph.onUndirectedEdgesDeleted.connect("GraphEditor", this, &GraphEditor::onUndirectedEdgesDeleted);
 }
 
 void GraphEditor::processEvents(sf::Event& event)
@@ -86,36 +89,30 @@ void GraphEditor::processEvents(sf::Event& event)
 				isMouseOverNodeShape = true;
 				
 				graph.deleteNode(nodeShape.getNodeId());
-
-				// Delete edge shapes connected to the deleted node
-				auto deleteEdgeShapes = [&nodeShape](std::vector<GraphEdgeShape>& edgesShapes) {
-					edgesShapes.erase(std::remove_if(edgesShapes.begin(), edgesShapes.end(), [&nodeShape](const GraphEdgeShape& shape) {
-						return shape.getStartNodeId() == nodeShape.getNodeId() || shape.getEndNodeId() == nodeShape.getNodeId();
-						}), edgesShapes.end());
-				};
-				deleteEdgeShapes(directedEdgesShapes);
-				deleteEdgeShapes(undirectedEdgesShapes);
-
 				// Delete the node shapes
 				nodesShapes.erase(nodesShapes.begin() + i);
+
+				break;
 			}
 		}
-		// Edges are drawn from the origin of nodes, so part of the edge is under the node it is connected to,
-		// therefore only check if edge shapes contain mouse position if mouse isn't hovering over any of the nodes shapes, 
-		// to avoid deleting edge & node at once
+		// If mouse is hovering over a node, it can't be hovering over an edge
 		if (!isMouseOverNodeShape) {
 			// Delete edge
 			if (graph.isDirected()) {
 				for (const auto& edgeShape : directedEdgesShapes) {
 					if (edgeShape.contains(mousePosition)) {
-						std::cout << "Delete directed edge\n";
+						graph.deleteEdge(edgeShape.getStartNodeId(), edgeShape.getEndNodeId());
+
+						break;
 					}
 				}
 			}
 			else {
 				for (const auto& edgeShape : undirectedEdgesShapes) {
 					if (edgeShape.contains(mousePosition)) {
-						std::cout << "Delete undirected edge\n";
+						graph.deleteEdge(edgeShape.getStartNodeId(), edgeShape.getEndNodeId());
+
+						break;
 					}
 				}
 			}
@@ -125,6 +122,14 @@ void GraphEditor::processEvents(sf::Event& event)
 	if (event.type == sf::Event::MouseButtonPressed && event.key.code == sf::Mouse::Right && heldEdge.has_value()) {
 		heldEdge.reset();
 	}
+
+	// TEMPORARY
+	if (event.type == sf::Event::KeyPressed && event.key.code == sf::Keyboard::P) {
+		graph.print();
+	}
+	if (event.type == sf::Event::KeyPressed && event.key.code == sf::Keyboard::E) {
+		graph.printEdges();
+	}
 }
 
 void GraphEditor::update(float deltaTime)
@@ -132,21 +137,18 @@ void GraphEditor::update(float deltaTime)
 	if (heldEdge.has_value()) {
 		heldEdge->setEndPosition(sf::Vector2f(sf::Mouse::getPosition(window)));
 	}
-	
-	for (auto& shape : nodesShapes) {
-		shape.update(deltaTime);
-	}
 }
 
 void GraphEditor::draw(sf::RenderWindow& window)
 {
+	// Draw edges
 	if (graph.isDirected()) {
-		for (auto& edgeShape : directedEdgesShapes) {
+		for (const auto& edgeShape : directedEdgesShapes) {
 			edgeShape.draw(window);
 		}
 	}
 	else {
-		for (auto& edgeShape : undirectedEdgesShapes) {
+		for (const auto& edgeShape : undirectedEdgesShapes) {
 			edgeShape.draw(window);
 		}
 	}
@@ -155,7 +157,27 @@ void GraphEditor::draw(sf::RenderWindow& window)
 		heldEdge->draw(window);
 	}
 	
-	for (auto& nodeShape : nodesShapes) {
+	// Draw nodes
+	for (const auto& nodeShape : nodesShapes) {
 		nodeShape.draw(window);
+	}
+}
+
+void GraphEditor::onDirectedEdgesDeleted(std::vector<std::pair<int, int>> deletedEdges)
+{
+	for (const auto& deletedEdge : deletedEdges) {
+		directedEdgesShapes.erase(std::remove_if(directedEdgesShapes.begin(), directedEdgesShapes.end(), [&deletedEdge](const GraphEdgeShape& shape) {
+			return shape.getStartNodeId() == deletedEdge.first && shape.getEndNodeId() == deletedEdge.second;
+		}), directedEdgesShapes.end());
+	}
+}
+
+void GraphEditor::onUndirectedEdgesDeleted(std::vector<std::pair<int, int>> deletedEdges)
+{
+	for (const auto& deletedEdge : deletedEdges) {
+		undirectedEdgesShapes.erase(std::remove_if(undirectedEdgesShapes.begin(), undirectedEdgesShapes.end(), [&deletedEdge](const GraphEdgeShape& shape) {
+			return (shape.getStartNodeId() == deletedEdge.first && shape.getEndNodeId() == deletedEdge.second)
+				|| (shape.getStartNodeId() == deletedEdge.second && shape.getEndNodeId() == deletedEdge.first);
+			}), undirectedEdgesShapes.end());
 	}
 }
