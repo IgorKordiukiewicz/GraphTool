@@ -56,7 +56,7 @@ private:
 	float headWidth = 11.5f;
 	float orthogonalOffset = 5.f;
 	bool isOrthogonalOffsetEnabled{ false };
-	struct Rectangle 
+	struct LineBounds 
 	{
 		sf::Vector2f a, b, c, d;
 		float width{ 0.f };
@@ -68,7 +68,7 @@ private:
 	struct TextOpacityAnimation
 	{
 		bool isActive{ false };
-		float speed{ 300.f };
+		float speed{ 400.f };
 		float value{ 255.f };
 		bool isValueIncreased{ false };
 	} textOpacityAnimation;

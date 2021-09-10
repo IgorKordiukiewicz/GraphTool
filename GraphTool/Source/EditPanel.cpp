@@ -29,5 +29,9 @@ void EditPanel::operator()()
 	}
 
 	ImGui::Separator();
-	ImGui::Text("Double click to add new nodes");
+	ImGui::Text("Double LMB to add new node");
+	ImGui::Text("LMB on node to attach edge to it");
+	ImGui::Text("RMB on node to delete it");
+	ImGui::Text("RMB on edge to delete it");
+	ImGui::Text("LMB on edge weight to edit it \n\t(Any MB or Enter to stop editing it)");
 }
