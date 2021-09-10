@@ -15,6 +15,12 @@ public:
 
 	void setStartPosition(const sf::Vector2f& newStartPosition);
 	void setEndPosition(const sf::Vector2f& newEndPosition);
+	void setWeight(int newWeight);
+
+	void updateTextOpacityAnimation(float deltaTime);
+	void startTextOpacityAnimation();
+	void stopTextOpacityAnimation();
+	bool isTextOpacityAnimationActive() const { return textOpacityAnimation.isActive; }
 
 	void makeDirected();
 	void makeUndirected();
@@ -29,6 +35,8 @@ public:
 	const sf::Vector2f& getEndPosition() const { return endPosition; }
 	int getStartNodeId() const { return startNodeId; }
 	int getEndNodeId() const { return endNodeId; }
+
+	const sf::Text& getWeightText() const { return weightText; }
 
 private:
 	void updateVertices();
@@ -57,4 +65,11 @@ private:
 
 	sf::Text weightText;
 	float weightTextOrthOffset = 10.f;
+	struct TextOpacityAnimation
+	{
+		bool isActive{ false };
+		float speed{ 300.f };
+		float value{ 255.f };
+		bool isValueIncreased{ false };
+	} textOpacityAnimation;
 };

@@ -40,6 +40,48 @@ void GraphEdgeShape::setEndPosition(const sf::Vector2f& newEndPosition)
 	updateVertices();
 }
 
+void GraphEdgeShape::setWeight(int newWeight)
+{
+	weightText.setString(std::to_string(newWeight));
+}
+
+void GraphEdgeShape::updateTextOpacityAnimation(float deltaTime)
+{
+	if (textOpacityAnimation.isActive) {
+		if (textOpacityAnimation.isValueIncreased) {
+			textOpacityAnimation.value += textOpacityAnimation.speed * deltaTime;
+			if (textOpacityAnimation.value >= 255.f) {
+				textOpacityAnimation.value = 255.f;
+				textOpacityAnimation.isValueIncreased = false;
+			}
+		}
+		else {
+			textOpacityAnimation.value -= textOpacityAnimation.speed * deltaTime;
+			if (textOpacityAnimation.value <= 0.f) {
+				textOpacityAnimation.value = 0.f;
+				textOpacityAnimation.isValueIncreased = true;
+			}
+		}
+
+		weightText.setFillColor({ 255, 255, 255, static_cast<sf::Uint8>(textOpacityAnimation.value) });
+	}
+}
+
+void GraphEdgeShape::startTextOpacityAnimation()
+{
+	textOpacityAnimation.isActive = true;
+	// Reset text opacity animation properties
+	textOpacityAnimation.value = 255.f;
+	textOpacityAnimation.isValueIncreased = false;
+}
+
+void GraphEdgeShape::stopTextOpacityAnimation()
+{
+	textOpacityAnimation.isActive = false;
+	// Reset the color to full opacity
+	weightText.setFillColor({ 255, 255, 255, 255 });
+}
+
 void GraphEdgeShape::makeDirected()
 {
 	directed = Directed::Yes;

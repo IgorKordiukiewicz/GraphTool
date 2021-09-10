@@ -41,6 +41,7 @@ private:
 		std::vector<std::pair<GraphEdgeShape*, bool>> connectedEdgesShapes;
 	};
 	std::optional<HeldNodePtrs> heldNodePtrs{ std::nullopt };
+	GraphEdgeShape* editedEdge{ nullptr };
 
 	sf::Font font;
 

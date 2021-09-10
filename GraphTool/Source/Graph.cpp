@@ -8,7 +8,6 @@ Graph::Graph()
 
 void Graph::addEdge(int a, int b, int weight)
 {
-	// If nodes with id's a or b dont exist, return
 	if (!doesNodeExist(a) || !doesNodeExist(b)) {
 		return;
 	}

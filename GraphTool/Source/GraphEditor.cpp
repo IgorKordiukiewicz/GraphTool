@@ -17,8 +17,23 @@ GraphEditor::GraphEditor(Graph& graph, sf::RenderWindow& window)
 void GraphEditor::processEvents(sf::Event& event)
 {
 	const auto mousePosition = window.mapPixelToCoords({ event.mouseButton.x, event.mouseButton.y });
-	
-	if (event.type == sf::Event::MouseButtonPressed 
+
+	// Press any mouse button or enter to stop editing edge weight
+	if (editedEdge && (event.type == sf::Event::MouseButtonPressed || (event.type == sf::Event::KeyPressed && event.key.code == sf::Keyboard::Enter))) {
+		editedEdge->stopTextOpacityAnimation();
+		editedEdge = nullptr;
+	}
+	else if (editedEdge && event.type == sf::Event::KeyPressed) {
+		// If key pressed is a number, update the edited edge's weight
+		const auto newEdgeWeight = [&event]() -> std::optional<int> {
+			return (event.key.code >= 26 && event.key.code <= 35) ? event.key.code - 26 : std::optional<int>{};
+		}();
+		if (newEdgeWeight.has_value()) {
+			graph.setEdgeWeight(editedEdge->getStartNodeId(), editedEdge->getEndNodeId(), *newEdgeWeight);
+			editedEdge->setWeight(*newEdgeWeight);
+		}
+	}
+	else if (event.type == sf::Event::MouseButtonPressed 
 		&& event.mouseButton.button == sf::Mouse::Left 
 		&& isMouseInsideGraphEditor()
 		&& !heldNodePtrs.has_value()) {
@@ -82,21 +97,23 @@ void GraphEditor::processEvents(sf::Event& event)
 			}
 			doubleClickClock.restart();
 
-			// Click on edge to edit its weight
-			if (graph.isDirected()) {
-				for (const auto& edgeShape : directedEdgesShapes) {
-					if (edgeShape.contains(mousePosition)) {
-						std::cout << "D\n";
-						break;
+			// Click on weight text to start editing edge weight
+			if (graph.isWeighted()) {
+				auto startEditingEdgeWeight = [this, &mousePosition](auto& edgesShapes) {
+					for (auto& edgeShape : edgesShapes) {
+						if (edgeShape.getWeightText().getGlobalBounds().contains(mousePosition)) {
+							editedEdge = &edgeShape;
+							editedEdge->startTextOpacityAnimation();
+							break;
+						}
 					}
+				};
+
+				if (graph.isDirected()) {
+					startEditingEdgeWeight(directedEdgesShapes);
 				}
-			}
-			else {
-				for (const auto& edgeShape : undirectedEdgesShapes) {
-					if (edgeShape.contains(mousePosition)) {
-						std::cout << "UD\n";
-						break;
-					}
+				else {
+					startEditingEdgeWeight(undirectedEdgesShapes);
 				}
 			}
 		}	
@@ -104,7 +121,8 @@ void GraphEditor::processEvents(sf::Event& event)
 	else if (event.type == sf::Event::MouseButtonPressed 
 		&& event.key.code == sf::Mouse::Right 
 		&& isMouseInsideGraphEditor()
-		&& !heldNodePtrs.has_value()) {
+		&& !heldNodePtrs.has_value()
+		&& !heldEdge.has_value()) {
 		// Delete node
 		bool isMouseOverNodeShape = false;
 		for (auto i = nodesShapes.size(); i--;) {
@@ -215,6 +233,20 @@ void GraphEditor::update(float deltaTime)
 		else {
 			heldNodePtrs.reset();
 		}
+	}
+
+	auto updateEdgeTextOpacityAnimation = [deltaTime](auto& edgesShapes) {
+		for (auto& edgeShape : edgesShapes) {
+			if (edgeShape.isTextOpacityAnimationActive()) {
+				edgeShape.updateTextOpacityAnimation(deltaTime);
+			}
+		}
+	};
+	if (graph.isDirected()) {
+		updateEdgeTextOpacityAnimation(directedEdgesShapes);
+	}
+	else {
+		updateEdgeTextOpacityAnimation(undirectedEdgesShapes);
 	}
 }
 
