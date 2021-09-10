@@ -1,6 +1,7 @@
 #include "../Include/GraphNodeShape.hpp"
+#include "../Include/ResourceManager.hpp"
 
-GraphNodeShape::GraphNodeShape(int nodeId, const sf::Vector2f& position, const sf::Font& font)
+GraphNodeShape::GraphNodeShape(int nodeId, const sf::Vector2f& position)
 	: nodeId(nodeId)
 {
 	shape.setRadius(radius);
@@ -8,7 +9,7 @@ GraphNodeShape::GraphNodeShape(int nodeId, const sf::Vector2f& position, const s
 	shape.setPosition(position);
 	shape.setFillColor({ 200, 130, 120 });
 
-	text.setFont(font);
+	text.setFont(ResourceManager::instance().getSFMLFont());
 	text.setCharacterSize(24);
 	text.setString(std::to_string(nodeId));
 	const auto textRect = text.getLocalBounds();

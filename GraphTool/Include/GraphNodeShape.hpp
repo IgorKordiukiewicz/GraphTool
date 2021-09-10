@@ -4,13 +4,12 @@
 #include <SFML/System/Vector2.hpp>
 #include <SFML/Graphics/RenderWindow.hpp>
 #include <SFML/Graphics/Text.hpp>
-#include <SFML/Graphics/Font.hpp>
 #include "Graph.hpp"
 
 class GraphNodeShape
 {
 public:
-	GraphNodeShape(int nodeId, const sf::Vector2f& position, const sf::Font& font);
+	GraphNodeShape(int nodeId, const sf::Vector2f& position);
 
 	void draw(sf::RenderWindow& window) const;
 

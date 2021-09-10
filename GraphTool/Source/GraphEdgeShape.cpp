@@ -1,5 +1,6 @@
 #include "../Include/GraphEdgeShape.hpp"
 #include <iostream>
+#include "../Include/ResourceManager.hpp"
 
 GraphEdgeShape::GraphEdgeShape(const sf::Vector2f& startPosition, const sf::Vector2f& endPosition, int startNodeId, int endNodeId, GraphType graphType)
 	: startPosition(startPosition), endPosition(endPosition), startNodeId(startNodeId), endNodeId(endNodeId), graphType(graphType)

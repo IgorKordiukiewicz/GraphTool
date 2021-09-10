@@ -2,6 +2,7 @@
 #include <imgui.h>
 #include <imgui-SFML.h>
 #include <SFML/Graphics.hpp>
+#include "../Include/ResourceManager.hpp"
 
 Application::Application()
 	: graph(GraphType::Undirected), editPanel(graph)
@@ -15,8 +16,7 @@ Application::Application()
 	ImGui::SFML::Init(window);
 
 	// Add custom font
-	ImGuiIO& io = ImGui::GetIO();
-	font = io.Fonts->AddFontFromFileTTF("Resources/consola.ttf", 14.f);
+	font = ResourceManager::instance().getImGuiFont();
 	ImGui::SFML::UpdateFontTexture();
 
 	graphEditor = std::make_unique<GraphEditor>(graph, window);

@@ -64,7 +64,7 @@ void GraphEditor::processEvents(sf::Event& event)
 			// Double click to add new node
 			if (doubleClickClock.getElapsedTime().asSeconds() <= doubleClickDelay) {
 				const int newNodeId = graph.createNode();
-				nodesShapes.push_back(GraphNodeShape{ newNodeId, mousePosition, font });
+				nodesShapes.push_back(GraphNodeShape{ newNodeId, mousePosition });
 
 				// If user was holding an edge, attach it to the created node
 				if (heldEdge.has_value()) {
@@ -75,6 +75,24 @@ void GraphEditor::processEvents(sf::Event& event)
 				}
 			}
 			doubleClickClock.restart();
+
+			// Click on edge to edit its weight
+			if (graph.isDirected()) {
+				for (const auto& edgeShape : directedEdgesShapes) {
+					if (edgeShape.contains(mousePosition)) {
+						std::cout << "D\n";
+						break;
+					}
+				}
+			}
+			else {
+				for (const auto& edgeShape : undirectedEdgesShapes) {
+					if (edgeShape.contains(mousePosition)) {
+						std::cout << "UD\n";
+						break;
+					}
+				}
+			}
 		}	
 	}
 	else if (event.type == sf::Event::MouseButtonPressed 

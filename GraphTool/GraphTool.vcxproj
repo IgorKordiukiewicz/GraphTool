@@ -160,6 +160,7 @@
     <ClCompile Include="Source\GraphEdgeShape.cpp" />
     <ClCompile Include="Source\GraphEditor.cpp" />
     <ClCompile Include="Source\GraphNodeShape.cpp" />
+    <ClCompile Include="Source\ResourceManager.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Include\AlgorithmsPanel.hpp" />
@@ -170,6 +171,7 @@
     <ClInclude Include="Include\GraphEdgeShape.hpp" />
     <ClInclude Include="Include\GraphEditor.hpp" />
     <ClInclude Include="Include\GraphNodeShape.hpp" />
+    <ClInclude Include="Include\ResourceManager.hpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

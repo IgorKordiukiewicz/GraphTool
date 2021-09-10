@@ -2,6 +2,7 @@
 
 #include <SFML/Graphics/RenderWindow.hpp>
 #include <SFML/Graphics/VertexArray.hpp>
+#include <SFML/Graphics/Text.hpp>
 #include "Graph.hpp"
 #include <array>
 
@@ -50,4 +51,6 @@ private:
 		float width;
 		float height{ 4.f };
 	} lineBounds;
+
+	sf::Text weightText;
 };
