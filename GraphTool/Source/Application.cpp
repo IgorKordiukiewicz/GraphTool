@@ -14,6 +14,11 @@ Application::Application()
 	window.setFramerateLimit(30);
 	ImGui::SFML::Init(window);
 
+	// Add custom font
+	ImGuiIO& io = ImGui::GetIO();
+	font = io.Fonts->AddFontFromFileTTF("Resources/consola.ttf", 14.f);
+	ImGui::SFML::UpdateFontTexture();
+
 	graphEditor = std::make_unique<GraphEditor>(graph, window);
 }
 
@@ -32,6 +37,10 @@ void Application::run()
 		// Fixed imgui window size & position
 		ImGui::SetNextWindowSize(ImVec2{ static_cast<float>(window.getSize().x / 4), static_cast<float>(window.getSize().y) });
 		ImGui::SetNextWindowPos({ 0,0 });
+
+		if (font) {
+			ImGui::PushFont(font);
+		}
 
 		// Setup main imgui window
 		ImGui::Begin("Main Window", (bool*)0,
@@ -54,6 +63,11 @@ void Application::run()
 
 			ImGui::EndTabBar();
 		}
+
+		if (font) {
+			ImGui::PopFont();
+		}
+
 		ImGui::End();
 
 		window.clear(backgroundColor);

@@ -5,7 +5,7 @@
 GraphEditor::GraphEditor(Graph& graph, sf::RenderWindow& window)
 	: graph(graph), window(window)
 {
-	if (!font.loadFromFile("Resources/AGENCYR.ttf")) {
+	if (!font.loadFromFile("Resources/consola.ttf")) {
 		std::cout << "Couldn't load font from file!\n";
 	}
 
