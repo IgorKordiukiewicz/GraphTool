@@ -20,6 +20,8 @@ public:
 	void onDirectedEdgesDeleted(std::vector<std::pair<int, int>> deletedEdges);
 	void onUndirectedEdgesDeleted(std::vector<std::pair<int, int>> deletedEdges);
 
+	void onGraphWeightedValueChanged();
+
 private:
 	bool isMouseInsideGraphEditor() const;
 

@@ -9,15 +9,17 @@
 class GraphEdgeShape
 {
 public:
-	GraphEdgeShape(const sf::Vector2f& startPosition, const sf::Vector2f& endPosition, int startNodeId, int endNodeId, GraphType graphType);
+	GraphEdgeShape(const sf::Vector2f& startPosition, const sf::Vector2f& endPosition, int startNodeId, int endNodeId, Directed graphType, Weighted weighted);
 
 	void draw(sf::RenderWindow& window) const;
 
 	void setStartPosition(const sf::Vector2f& newStartPosition);
 	void setEndPosition(const sf::Vector2f& newEndPosition);
+
 	void makeDirected();
 	void makeUndirected();
-
+	void makeWeighted();
+	void makeUnweighted();
 	void makeOrthogonalOffsetEnabled();
 	void makeOrthogonalOffsetDisabled();
 
@@ -32,7 +34,8 @@ private:
 	void updateVertices();
 
 private:
-	GraphType graphType;
+	Directed directed;
+	Weighted weighted;
 
 	sf::Vector2f startPosition;
 	sf::Vector2f endPosition;
@@ -48,9 +51,10 @@ private:
 	struct Rectangle 
 	{
 		sf::Vector2f a, b, c, d;
-		float width;
+		float width{ 0.f };
 		float height{ 4.f };
 	} lineBounds;
 
 	sf::Text weightText;
+	float weightTextOrthOffset = 10.f;
 };

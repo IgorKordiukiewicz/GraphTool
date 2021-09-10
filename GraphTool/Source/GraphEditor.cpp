@@ -11,6 +11,7 @@ GraphEditor::GraphEditor(Graph& graph, sf::RenderWindow& window)
 
 	graph.onDirectedEdgesDeleted.connect("GraphEditor", this, &GraphEditor::onDirectedEdgesDeleted);
 	graph.onUndirectedEdgesDeleted.connect("GraphEditor", this, &GraphEditor::onUndirectedEdgesDeleted);
+	graph.onWeightedValueChanged.connect("GraphEditor", this, &GraphEditor::onGraphWeightedValueChanged);
 }
 
 void GraphEditor::processEvents(sf::Event& event)
@@ -31,9 +32,11 @@ void GraphEditor::processEvents(sf::Event& event)
 				if (heldEdge.has_value()) {
 					// Prevent having duplicate edge shapes
 					if (auto [nodeA, nodeB] = std::pair{ heldEdge->getStartNodeId(), nodeShape.getNodeId() }; !graph.doesEdgeExist(nodeA, nodeB)) {
-						directedEdgesShapes.push_back(GraphEdgeShape{ heldEdge->getStartPosition(), nodeShape.getShape().getPosition(), nodeA, nodeB, GraphType::Directed });
+						directedEdgesShapes.push_back(GraphEdgeShape{ heldEdge->getStartPosition(), nodeShape.getShape().getPosition(), nodeA, nodeB, Directed::Yes,
+							(graph.isWeighted() ? Weighted::Yes : Weighted::No) });
 						if (!graph.doesEdgeExist(nodeB, nodeA)) {
-							undirectedEdgesShapes.push_back(GraphEdgeShape{ heldEdge->getStartPosition(), nodeShape.getShape().getPosition(), nodeA, nodeB, GraphType::Undirected });
+							undirectedEdgesShapes.push_back(GraphEdgeShape{ heldEdge->getStartPosition(), nodeShape.getShape().getPosition(), nodeA, nodeB, Directed::No,
+								(graph.isWeighted() ? Weighted::Yes : Weighted::No) });
 						}
 						graph.addEdge(nodeA, nodeB);
 						heldEdge.reset();
@@ -53,7 +56,8 @@ void GraphEditor::processEvents(sf::Event& event)
 				}
 				// Create new edge shape
 				else {
-					heldEdge = GraphEdgeShape{ nodeShape.getShape().getPosition(), mousePosition, nodeShape.getNodeId(), -1, graph.getType()};
+					heldEdge = GraphEdgeShape{ nodeShape.getShape().getPosition(), mousePosition, nodeShape.getNodeId(), -1, 
+						(graph.isDirected() ? Directed::Yes : Directed::No), (graph.isWeighted() ? Weighted::Yes : Weighted::No) };
 				}
 
 				break;
@@ -69,8 +73,10 @@ void GraphEditor::processEvents(sf::Event& event)
 				// If user was holding an edge, attach it to the created node
 				if (heldEdge.has_value()) {
 					graph.addEdge(heldEdge->getStartNodeId(), newNodeId);
-					directedEdgesShapes.push_back(GraphEdgeShape{heldEdge->getStartPosition(), mousePosition, heldEdge->getStartNodeId(), newNodeId, GraphType::Directed });
-					undirectedEdgesShapes.push_back(GraphEdgeShape{heldEdge->getStartPosition(), mousePosition, heldEdge->getStartNodeId(), newNodeId, GraphType::Undirected });
+					directedEdgesShapes.push_back(GraphEdgeShape{heldEdge->getStartPosition(), mousePosition, heldEdge->getStartNodeId(), newNodeId, Directed::Yes,
+						(graph.isWeighted() ? Weighted::Yes : Weighted::No) });
+					undirectedEdgesShapes.push_back(GraphEdgeShape{heldEdge->getStartPosition(), mousePosition, heldEdge->getStartNodeId(), newNodeId, Directed::No,
+						(graph.isWeighted() ? Weighted::Yes : Weighted::No) });
 					heldEdge.reset();
 				}
 			}
@@ -252,6 +258,29 @@ void GraphEditor::onUndirectedEdgesDeleted(std::vector<std::pair<int, int>> dele
 			return (shape.getStartNodeId() == deletedEdge.first && shape.getEndNodeId() == deletedEdge.second)
 				|| (shape.getStartNodeId() == deletedEdge.second && shape.getEndNodeId() == deletedEdge.first);
 			}), undirectedEdgesShapes.end());
+	}
+}
+
+void GraphEditor::onGraphWeightedValueChanged()
+{
+	auto updateEdgesShapes = [](auto& edgesShapes, bool makeWeighted) {
+		for (auto& edgeShape : edgesShapes) {
+			if (makeWeighted) {
+				edgeShape.makeWeighted();
+			}
+			else {
+				edgeShape.makeUnweighted();
+			}
+		}
+	};
+	
+	if (graph.isWeighted()) {
+		updateEdgesShapes(directedEdgesShapes, true);
+		updateEdgesShapes(undirectedEdgesShapes, true);
+	}
+	else {
+		updateEdgesShapes(directedEdgesShapes, false);
+		updateEdgesShapes(undirectedEdgesShapes, false);
 	}
 }
 

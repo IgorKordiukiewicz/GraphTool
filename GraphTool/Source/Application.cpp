@@ -3,9 +3,10 @@
 #include <imgui-SFML.h>
 #include <SFML/Graphics.hpp>
 #include "../Include/ResourceManager.hpp"
+#include <iostream>
 
 Application::Application()
-	: graph(GraphType::Undirected), editPanel(graph)
+	: graph(), editPanel(graph)
 {
 	// Initialize window
 	sf::ContextSettings contextSettings;

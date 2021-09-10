@@ -2,19 +2,29 @@
 #include <iostream>
 #include "../Include/ResourceManager.hpp"
 
-GraphEdgeShape::GraphEdgeShape(const sf::Vector2f& startPosition, const sf::Vector2f& endPosition, int startNodeId, int endNodeId, GraphType graphType)
-	: startPosition(startPosition), endPosition(endPosition), startNodeId(startNodeId), endNodeId(endNodeId), graphType(graphType)
+GraphEdgeShape::GraphEdgeShape(const sf::Vector2f& startPosition, const sf::Vector2f& endPosition, int startNodeId, int endNodeId, Directed graphType, Weighted weighted)
+	: startPosition(startPosition), endPosition(endPosition), startNodeId(startNodeId), endNodeId(endNodeId), directed(graphType), weighted(weighted)
 {
 	lineVertices.setPrimitiveType(sf::PrimitiveType::Lines);
 	headVertices.setPrimitiveType(sf::PrimitiveType::Triangles);
 	updateVertices();
+
+	weightText.setFont(ResourceManager::instance().getSFMLFont());
+	weightText.setCharacterSize(20);
+	weightText.setString("0");
+	const auto textRect = weightText.getLocalBounds();
+	weightText.setOrigin(textRect.left + textRect.width / 2.f, textRect.top + textRect.height / 2.f);
 }
 
 void GraphEdgeShape::draw(sf::RenderWindow& window) const
 {
 	window.draw(lineVertices);
-	if (graphType == GraphType::Directed) {
+	if (directed == Directed::Yes) {
 		window.draw(headVertices);
+	}
+
+	if (weighted == Weighted::Yes) {
+		window.draw(weightText);
 	}
 }
 
@@ -32,15 +42,25 @@ void GraphEdgeShape::setEndPosition(const sf::Vector2f& newEndPosition)
 
 void GraphEdgeShape::makeDirected()
 {
-	graphType = GraphType::Directed;
+	directed = Directed::Yes;
 	updateVertices();
 }
 
 void GraphEdgeShape::makeUndirected()
 {
-	graphType = GraphType::Undirected;
+	directed = Directed::No;
 	isOrthogonalOffsetEnabled = false;
 	updateVertices();
+}
+
+void GraphEdgeShape::makeWeighted()
+{
+	weighted = Weighted::Yes;
+}
+
+void GraphEdgeShape::makeUnweighted()
+{
+	weighted = Weighted::No;
 }
 
 void GraphEdgeShape::makeOrthogonalOffsetEnabled()
@@ -69,7 +89,7 @@ bool GraphEdgeShape::contains(const sf::Vector2f& point) const
 		return (area1 + area2 + area3 + area4) <= boundsArea;
 	};
 	
-	if (graphType == GraphType::Directed) {
+	if (directed == Directed::Yes) {
 		return isPointInsideLineBounds() || headVertices.getBounds().contains(point);
 	}
 	else {
@@ -105,7 +125,7 @@ void GraphEdgeShape::updateVertices()
 	lineVertices.append(endPositionFixed);
 
 	// Calculate the head triangle vertices
-	if (graphType == GraphType::Directed) {
+	if (directed == Directed::Yes) {
 		const sf::Vector2f headBaseCenter = endPositionFixed + dirVecNormalized * headHeight;
 		const sf::Vector2f dirVecOrth1 = { -dirVecNormalized.y, dirVecNormalized.x };
 		const sf::Vector2f dirVecOrth2 = dirVecOrth1 * -1.f;
@@ -127,4 +147,7 @@ void GraphEdgeShape::updateVertices()
 	lineBounds.c = startPositionFixed + orthVector2;
 	lineBounds.d = endPositionFixed + orthVector2;
 	lineBounds.width = dirVecLength;
+
+	// Update text position
+	weightText.setPosition(startPositionFixed + (orthDirVecNormalized * weightTextOrthOffset) - (dirVec / 2.f));
 }

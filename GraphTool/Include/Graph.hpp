@@ -45,19 +45,26 @@ inline bool operator>=(const Edge& lhs, const Edge& rhs) { return !(rhs < lhs); 
 inline bool operator==(const Edge& lhs, const Edge& rhs) { return (lhs.a == rhs.a && lhs.b == rhs.b); }
 inline bool operator!=(const Edge& lhs, const Edge& rhs) { return !(lhs == rhs); }
 
-enum class GraphType
+enum class Directed
 {
-	Directed,
-	Undirected
+	Yes,
+	No
+};
+
+enum class Weighted
+{
+	Yes, 
+	No
 };
 
 class Graph
 {
 public:
-	Graph(GraphType type);
+	Graph();
 
 	Event<std::vector<std::pair<int, int>>> onDirectedEdgesDeleted;
 	Event<std::vector<std::pair<int, int>>> onUndirectedEdgesDeleted;
+	Event<> onWeightedValueChanged;
 
 	void addEdge(int a, int b, int weight = 0);
 
@@ -71,8 +78,10 @@ public:
 
 	void makeDirected();
 	void makeUndirected();
-	bool isDirected() const { return type == GraphType::Directed; }
-	GraphType getType() const { return type; }
+	bool isDirected() const { return directed == Directed::Yes; }
+	void makeWeighted();
+	void makeUnweighted();
+	bool isWeighted() const { return weighted == Weighted::Yes; }
 
 	bool doesNodeExist(int nodeId) const;
 	bool doesEdgeExist(int a, int b) const;
@@ -86,7 +95,8 @@ public: // TEMP
 	void printEdges() const;
 
 private:
-	GraphType type;
+	Directed directed{ Directed::No };
+	Weighted weighted{ Weighted::No };
 	std::map<int, std::set<int>> directedAdjList;
 	std::map<int, std::set<int>> undirectedAdjList;
 	std::set<Node> nodes;

@@ -1,8 +1,7 @@
 #include "../Include/Graph.hpp"
 #include <iostream>
 
-Graph::Graph(GraphType type)
-	: type(type)
+Graph::Graph()
 {
 
 }
@@ -173,20 +172,32 @@ void Graph::deleteEdge(int a, int b)
 
 void Graph::makeDirected()
 {
-	if (isDirected()) {
-		return;
-	}
-
-	type = GraphType::Directed;
+	directed = Directed::Yes;
 }
 
 void Graph::makeUndirected()
 {
-	if (!isDirected()) {
+	directed = Directed::No;
+}
+
+void Graph::makeWeighted()
+{
+	if (isWeighted()) {
 		return;
 	}
 
-	type = GraphType::Undirected;
+	weighted = Weighted::Yes;
+	onWeightedValueChanged.emit();
+}
+
+void Graph::makeUnweighted()
+{
+	if (!isWeighted()) {
+		return;
+	}
+
+	weighted = Weighted::No;
+	onWeightedValueChanged.emit();
 }
 
 bool Graph::doesNodeExist(int nodeId) const
