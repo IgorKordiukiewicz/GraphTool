@@ -12,6 +12,7 @@ public:
 
 	void draw(sf::RenderWindow& window) const;
 
+	void setStartPosition(const sf::Vector2f& newStartPosition);
 	void setEndPosition(const sf::Vector2f& newEndPosition);
 	void makeDirected();
 	void makeUndirected();

@@ -17,6 +17,12 @@ void GraphEdgeShape::draw(sf::RenderWindow& window) const
 	}
 }
 
+void GraphEdgeShape::setStartPosition(const sf::Vector2f& newStartPosition)
+{
+	startPosition = newStartPosition;
+	updateVertices();
+}
+
 void GraphEdgeShape::setEndPosition(const sf::Vector2f& newEndPosition)
 {
 	endPosition = newEndPosition;

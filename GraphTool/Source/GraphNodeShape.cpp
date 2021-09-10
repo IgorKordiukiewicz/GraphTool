@@ -21,3 +21,9 @@ void GraphNodeShape::draw(sf::RenderWindow& window) const
 	window.draw(shape);
 	window.draw(text);
 }
+
+void GraphNodeShape::setPosition(const sf::Vector2f& newPosition)
+{
+	shape.setPosition(newPosition);
+	text.setPosition(newPosition);
+}

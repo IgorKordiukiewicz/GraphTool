@@ -15,15 +15,12 @@ GraphEditor::GraphEditor(Graph& graph, sf::RenderWindow& window)
 
 void GraphEditor::processEvents(sf::Event& event)
 {
-	auto isMouseInsideGraphEditor = [this]() {
-		const sf::FloatRect graphViewRect{
-			static_cast<float>(window.getSize().x) * 0.25f, 0.f, // 0.25f, because the imgui window's length is 1/4 of the app window length, TODO: make it not hardcoded
-			static_cast<float>(window.getSize().x) * 0.75f, static_cast<float>(window.getSize().y) };
-		return graphViewRect.contains(sf::Vector2f(sf::Mouse::getPosition(window)));
-	};
 	const auto mousePosition = window.mapPixelToCoords({ event.mouseButton.x, event.mouseButton.y });
 	
-	if (event.type == sf::Event::MouseButtonPressed && event.mouseButton.button == sf::Mouse::Left && isMouseInsideGraphEditor()) {
+	if (event.type == sf::Event::MouseButtonPressed 
+		&& event.mouseButton.button == sf::Mouse::Left 
+		&& isMouseInsideGraphEditor()
+		&& !heldNodePtrs.has_value()) {
 		// Check if mouse hovers over any of the nodes shapes
 		bool isMouseOverNodeShape = false;
 		for (const auto& nodeShape : nodesShapes) {
@@ -80,7 +77,10 @@ void GraphEditor::processEvents(sf::Event& event)
 			doubleClickClock.restart();
 		}	
 	}
-	if (event.type == sf::Event::MouseButtonPressed && event.key.code == sf::Mouse::Right && isMouseInsideGraphEditor()) {
+	else if (event.type == sf::Event::MouseButtonPressed 
+		&& event.key.code == sf::Mouse::Right 
+		&& isMouseInsideGraphEditor()
+		&& !heldNodePtrs.has_value()) {
 		// Delete node
 		bool isMouseOverNodeShape = false;
 		for (auto i = nodesShapes.size(); i--;) {
@@ -119,8 +119,42 @@ void GraphEditor::processEvents(sf::Event& event)
 		}
 	}
 	// Right mouse button to stop holding an edge
-	if (event.type == sf::Event::MouseButtonPressed && event.key.code == sf::Mouse::Right && heldEdge.has_value()) {
+	else if (event.type == sf::Event::MouseButtonPressed 
+		&& event.key.code == sf::Mouse::Right 
+		&& heldEdge.has_value()) {
 		heldEdge.reset();
+	}
+	// Hold middle mouse button to move a node
+	else if (event.type == sf::Event::MouseButtonPressed 
+		&& event.key.code == sf::Mouse::Middle 
+		&& isMouseInsideGraphEditor() 
+		&& !heldNodePtrs.has_value() 
+		&& !heldEdge.has_value()) {
+		for (auto& nodeShape : nodesShapes) {
+			if (nodeShape.getShape().getGlobalBounds().contains(mousePosition)) {
+				heldNodePtrs.emplace(HeldNodePtrs{});
+				heldNodePtrs->heldNodeShape = &nodeShape;
+
+				// Find edges connected to this node
+				auto findEdgesConnectedToHeldNode = [&nodeShape](auto& edgesShapes, auto& heldNodePtrs) {
+					for (auto& edgeShape : edgesShapes) {
+						if (edgeShape.getStartNodeId() == nodeShape.getNodeId()) {
+							heldNodePtrs->connectedEdgesShapes.push_back({ &edgeShape, true });
+						}
+						else if (edgeShape.getEndNodeId() == nodeShape.getNodeId()) {
+							heldNodePtrs->connectedEdgesShapes.push_back({ &edgeShape, false });
+						}
+					}
+				};
+				findEdgesConnectedToHeldNode(directedEdgesShapes, heldNodePtrs);
+				findEdgesConnectedToHeldNode(undirectedEdgesShapes, heldNodePtrs);
+			}
+		}
+	}
+	else if (event.type == sf::Event::MouseButtonReleased 
+		&& event.key.code == sf::Mouse::Middle 
+		&& heldNodePtrs.has_value()) {
+		heldNodePtrs.reset();
 	}
 
 	// TEMPORARY
@@ -136,6 +170,27 @@ void GraphEditor::update(float deltaTime)
 {
 	if (heldEdge.has_value()) {
 		heldEdge->setEndPosition(window.mapPixelToCoords(sf::Mouse::getPosition(window)));
+	}
+
+	if (heldNodePtrs.has_value()) {
+		if (isMouseInsideGraphEditor()) {
+			// Update held node's shape position
+			const auto mousePosition = window.mapPixelToCoords(sf::Mouse::getPosition(window));
+			heldNodePtrs->heldNodeShape->setPosition(mousePosition);
+			// Update connected edges positions
+			for (auto[edgeShape, isStartPositionAttached] : heldNodePtrs->connectedEdgesShapes) {
+				if (isStartPositionAttached) {
+					edgeShape->setStartPosition(mousePosition);
+				}
+				else {
+					edgeShape->setEndPosition(mousePosition);
+				}
+			}
+		}
+		// If mouse goes out of graph editor, stop holding the node
+		else {
+			heldNodePtrs.reset();
+		}
 	}
 }
 
@@ -180,4 +235,12 @@ void GraphEditor::onUndirectedEdgesDeleted(std::vector<std::pair<int, int>> dele
 				|| (shape.getStartNodeId() == deletedEdge.second && shape.getEndNodeId() == deletedEdge.first);
 			}), undirectedEdgesShapes.end());
 	}
+}
+
+bool GraphEditor::isMouseInsideGraphEditor() const
+{
+	const sf::FloatRect graphViewRect{
+			static_cast<float>(window.getSize().x) * 0.25f, 0.f, // 0.25f, because the imgui window's length is 1/4 of the app window length, TODO: make it not hardcoded
+			static_cast<float>(window.getSize().x) * 0.75f, static_cast<float>(window.getSize().y) };
+	return graphViewRect.contains(sf::Vector2f(sf::Mouse::getPosition(window)));
 }

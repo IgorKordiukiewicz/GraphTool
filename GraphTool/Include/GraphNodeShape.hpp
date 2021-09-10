@@ -14,6 +14,8 @@ public:
 
 	void draw(sf::RenderWindow& window) const;
 
+	void setPosition(const sf::Vector2f& newPosition);
+
 	const sf::CircleShape& getShape() const { return shape; }
 	int getNodeId() const { return nodeId; }
 
