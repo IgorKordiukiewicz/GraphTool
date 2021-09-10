@@ -135,7 +135,7 @@ void GraphEditor::processEvents(sf::Event& event)
 void GraphEditor::update(float deltaTime)
 {
 	if (heldEdge.has_value()) {
-		heldEdge->setEndPosition(sf::Vector2f(sf::Mouse::getPosition(window)));
+		heldEdge->setEndPosition(window.mapPixelToCoords(sf::Mouse::getPosition(window)));
 	}
 }
 
