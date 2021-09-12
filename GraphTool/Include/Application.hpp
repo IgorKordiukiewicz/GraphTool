@@ -22,7 +22,6 @@ private:
 	sf::RenderWindow window;
 	const sf::Color backgroundColor{ 30, 30, 30 };
 
-	//GraphEditor graphEditor;
 	EditPanel editPanel;
 	AlgorithmsPanel algorithmsPanel;
 	Graph graph;

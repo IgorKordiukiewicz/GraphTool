@@ -55,7 +55,7 @@ void GraphEditor::processEvents(sf::Event& event)
 			doubleClickClock.restart();
 
 			if (graph.isWeighted()) {
-				startEditingEdgeWeightIfNeeded(mousePosition);
+				startEditingEdgeWeightIfRequired(mousePosition);
 			}
 			
 		}	
@@ -66,11 +66,11 @@ void GraphEditor::processEvents(sf::Event& event)
 		&& isMouseInsideGraphEditor()
 		&& !heldNodePtrs.has_value()
 		&& !heldEdge.has_value()) {
-		bool wasAnyNodeDeleted = deleteNodeIfNeeded(mousePosition);
+		bool wasAnyNodeDeleted = deleteNodeIfRequired(mousePosition);
 
 		// If any node was deleted, then mouse was on top of a node, so it can't be on top of any edge
 		if (!wasAnyNodeDeleted) {
-			deleteEdgeIfNeeded(mousePosition);
+			deleteEdgeIfRequired(mousePosition);
 		}
 	}
 	// Stop holding an edge
@@ -109,7 +109,7 @@ void GraphEditor::update(float deltaTime)
 		updateHeldNodePtrs();
 	}
 
-	updateTextOpacityAnimationIfNeeded(deltaTime);
+	updateTextOpacityAnimationIfRequired(deltaTime);
 }
 
 void GraphEditor::draw(sf::RenderWindow& window)
@@ -253,7 +253,7 @@ void GraphEditor::createNewNode(const sf::Vector2f& mousePosition)
 	}
 }
 
-void GraphEditor::startEditingEdgeWeightIfNeeded(const sf::Vector2f& mousePosition)
+void GraphEditor::startEditingEdgeWeightIfRequired(const sf::Vector2f& mousePosition)
 {
 	auto startEditingEdgeWeight = [this, &mousePosition](auto& edgesShapes) {
 		for (auto& edgeShape : edgesShapes) {
@@ -273,7 +273,7 @@ void GraphEditor::startEditingEdgeWeightIfNeeded(const sf::Vector2f& mousePositi
 	}
 }
 
-bool GraphEditor::deleteNodeIfNeeded(const sf::Vector2f& mousePosition)
+bool GraphEditor::deleteNodeIfRequired(const sf::Vector2f& mousePosition)
 {
 	for (auto i = nodesShapes.size(); i--;) {
 		const auto& nodeShape = nodesShapes[i];
@@ -289,7 +289,7 @@ bool GraphEditor::deleteNodeIfNeeded(const sf::Vector2f& mousePosition)
 	return false;
 }
 
-void GraphEditor::deleteEdgeIfNeeded(const sf::Vector2f& mousePosition)
+void GraphEditor::deleteEdgeIfRequired(const sf::Vector2f& mousePosition)
 {
 	if (graph.isDirected()) {
 		for (const auto& edgeShape : directedEdgesShapes) {
@@ -356,7 +356,7 @@ void GraphEditor::updateHeldNodePtrs()
 	}
 }
 
-void GraphEditor::updateTextOpacityAnimationIfNeeded(float deltaTime)
+void GraphEditor::updateTextOpacityAnimationIfRequired(float deltaTime)
 {
 	auto updateEdgeTextOpacityAnimation = [deltaTime](auto& edgesShapes) {
 		for (auto& edgeShape : edgesShapes) {

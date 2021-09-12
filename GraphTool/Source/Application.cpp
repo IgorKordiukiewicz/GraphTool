@@ -6,7 +6,7 @@
 #include <iostream>
 
 Application::Application()
-	: graph(), editPanel(graph)
+	: graph(), editPanel(graph), algorithmsPanel(graph)
 {
 	// Initialize window
 	sf::ContextSettings contextSettings;

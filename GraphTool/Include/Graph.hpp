@@ -62,6 +62,8 @@ class Graph
 public:
 	Graph();
 
+	using AdjacencyList = std::map<int, std::set<int>>;
+
 	Event<std::vector<std::pair<int, int>>> onDirectedEdgesDeleted;
 	Event<std::vector<std::pair<int, int>>> onUndirectedEdgesDeleted;
 	Event<> onWeightedValueChanged;
@@ -85,6 +87,10 @@ public:
 
 	bool doesNodeExist(int nodeId) const;
 	bool doesEdgeExist(int a, int b) const;
+
+	const AdjacencyList& getAdjacencyList() const { return isDirected() ? directedAdjList : undirectedAdjList; }
+	const std::set<Node>& getNodes() const { return nodes; }
+	std::vector<std::string> getNodesIdsStrings() const;
 	
 private:
 	bool doesDirectedEdgeExist(int a, int b) const;
@@ -97,10 +103,13 @@ public: // TEMP
 private:
 	Directed directed{ Directed::No };
 	Weighted weighted{ Weighted::No };
-	std::map<int, std::set<int>> directedAdjList;
-	std::map<int, std::set<int>> undirectedAdjList;
+
+	AdjacencyList directedAdjList;
+	AdjacencyList undirectedAdjList;
+
 	std::set<Node> nodes;
 	int nextNodeId{ 1 };
+
 	// Directed & undirected edges are stored separately so user can easily switch between directed & undirected graph
 	std::set<Edge> directedEdges;
 	// Undirected edges are stored with .a being the smaller node id and .b being the bigger node id

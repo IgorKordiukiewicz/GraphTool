@@ -1,5 +1,6 @@
 #include "../Include/Graph.hpp"
 #include <iostream>
+#include <string>
 
 Graph::Graph()
 {
@@ -207,6 +208,15 @@ bool Graph::doesNodeExist(int nodeId) const
 bool Graph::doesEdgeExist(int a, int b) const
 {
 	return isDirected() ? doesDirectedEdgeExist(a, b) : doesUndirectedEdgeExist(a, b);
+}
+
+std::vector<std::string> Graph::getNodesIdsStrings() const
+{
+	std::vector<std::string> result;
+	for (const auto& node : nodes) {
+		result.push_back(std::to_string(node.id));
+	}
+	return result;
 }
 
 bool Graph::doesDirectedEdgeExist(int a, int b) const
