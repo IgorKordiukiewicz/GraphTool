@@ -4,11 +4,13 @@
 GraphNodeShape::GraphNodeShape(int nodeId, const sf::Vector2f& position)
 	: nodeId(nodeId)
 {
+	// Initialize shape
 	shape.setRadius(radius);
 	shape.setOrigin({ radius, radius });
 	shape.setPosition(position);
 	shape.setFillColor({ 200, 130, 120 });
 
+	// Initialize text
 	text.setFont(ResourceManager::instance().getSFMLFont());
 	text.setCharacterSize(24);
 	text.setString(std::to_string(nodeId));

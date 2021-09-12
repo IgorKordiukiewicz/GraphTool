@@ -5,10 +5,12 @@
 GraphEdgeShape::GraphEdgeShape(const sf::Vector2f& startPosition, const sf::Vector2f& endPosition, int startNodeId, int endNodeId, Directed graphType, Weighted weighted)
 	: startPosition(startPosition), endPosition(endPosition), startNodeId(startNodeId), endNodeId(endNodeId), directed(graphType), weighted(weighted)
 {
+	// Initialize vertices
 	lineVertices.setPrimitiveType(sf::PrimitiveType::Lines);
 	headVertices.setPrimitiveType(sf::PrimitiveType::Triangles);
 	updateVertices();
 
+	// Initialize weight text
 	weightText.setFont(ResourceManager::instance().getSFMLFont());
 	weightText.setCharacterSize(20);
 	weightText.setString("0");

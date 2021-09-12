@@ -24,7 +24,20 @@ public:
 
 private:
 	bool isMouseInsideGraphEditor() const;
-
+	void stopEditingEdgeWeight();
+	void editEdgeWeight(sf::Event& event);
+	void attachHeldEdge(const GraphNodeShape& nodeShape);
+	void createNewEdge(const GraphNodeShape& nodeShape, const sf::Vector2f& mousePosition);
+	void createNewNode(const sf::Vector2f& mousePosition);
+	void startEditingEdgeWeightIfRequired(const sf::Vector2f& mousePosition);
+	// Returns true if a node was deleted and false otherwise
+	bool deleteNodeIfRequired(const sf::Vector2f& mousePosition);
+	void deleteEdgeIfRequired(const sf::Vector2f& mousePosition);
+	void startHoldingNode(GraphNodeShape& nodeShape);
+	void updateHeldEdge();
+	void updateHeldNodePtrs();
+	void updateTextOpacityAnimationIfRequired(float deltaTime);
+	
 private:
 	std::vector<GraphNodeShape> nodesShapes;
 	std::vector<GraphEdgeShape> directedEdgesShapes;
