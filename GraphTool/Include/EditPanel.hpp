@@ -6,7 +6,7 @@ class EditPanel
 public:
 	EditPanel(Graph& graph);
 
-	void operator()();
+	void run();
 
 private:
 	Graph& graph;

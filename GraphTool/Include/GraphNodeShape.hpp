@@ -15,11 +15,15 @@ public:
 
 	void setPosition(const sf::Vector2f& newPosition);
 
+	void makeOutlineColored();
+	void resetOutlineColor();
+
 	const sf::CircleShape& getShape() const { return shape; }
 	int getNodeId() const { return nodeId; }
 
 private:
 	sf::CircleShape shape;
+	sf::Color color{ 220, 60, 60 };
 	float radius{ 16.f };
 	sf::Text text;
 

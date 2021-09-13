@@ -6,44 +6,48 @@
 
 namespace ga = GraphAlgorithms;
 
-AlgorithmsPanel::AlgorithmsPanel(Graph& graph)
-	: graph(graph)
+AlgorithmsPanel::AlgorithmsPanel(Graph& graph, GraphEditor& graphEditor)
+	: graph(graph), graphEditor(graphEditor)
 {
 }
 
-void AlgorithmsPanel::operator()()
+void AlgorithmsPanel::run()
 {
 	ImGui::Text("Select Algorithm");
-	if (ImGui::Button("Depth First Search")) {
+	ImGui::Spacing();
+	const int oldSelectedAlgorithmIdx = selectedAlgorithmIdx;
+	if (ImGui::Selectable("Depth First Search", selectedAlgorithmIdx == 1)) {
 		selectedAlgorithm = SelectedAlgorithm::DFS;
+		selectedAlgorithmIdx = 1;
 	}
-	if (ImGui::Button("Breadth First Search")) {
+	if (ImGui::Selectable("Breadth First Search", selectedAlgorithmIdx == 2)) {
 		selectedAlgorithm = SelectedAlgorithm::BFS;
+		selectedAlgorithmIdx = 2;
+	}
+
+	if (selectedAlgorithmIdx != oldSelectedAlgorithmIdx) {
+		graphEditor.deactivateTraversalOrderAnimation();
 	}
 
 	ImGui::Separator();
 	if (selectedAlgorithm == SelectedAlgorithm::DFS) {
+		ImGui::Text("Depth First Search");
 		const auto nodesIds = graph.getNodesIdsStrings();
 		selectNode(nodesIds, startNode);
 
 		if (ImGui::Button("Execute")) {
 			auto result = ga::dfs(graph, std::stoi(nodesIds[startNode]));
-			for (const auto node : result) {
-				std::cout << node << " ";
-			}
-			std::cout << '\n';
+			graphEditor.activateTraversalOrderAnimation(result);
 		}
 	}
 	else if (selectedAlgorithm == SelectedAlgorithm::BFS) {
+		ImGui::Text("Breadth First Search");
 		const auto nodesIds = graph.getNodesIdsStrings();
 		selectNode(nodesIds, startNode);
 
 		if (ImGui::Button("Execute")) {
 			auto result = ga::bfs(graph, std::stoi(nodesIds[startNode]));
-			for (const auto node : result) {
-				std::cout << node << " ";
-			}
-			std::cout << '\n';
+			graphEditor.activateTraversalOrderAnimation(result);
 		}
 	}
 }

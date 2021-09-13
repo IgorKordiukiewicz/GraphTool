@@ -22,9 +22,10 @@ private:
 	sf::RenderWindow window;
 	const sf::Color backgroundColor{ 30, 30, 30 };
 
-	EditPanel editPanel;
-	AlgorithmsPanel algorithmsPanel;
 	Graph graph;
+	Panel currentPanel{ Panel::EditPanel };
+	std::unique_ptr<EditPanel> editPanel;
+	std::unique_ptr<AlgorithmsPanel> algorithmsPanel;
 	std::unique_ptr<GraphEditor> graphEditor;
 
 	struct ImFont* font{ nullptr };

@@ -1,21 +1,22 @@
 #pragma once
 
-#include "Graph.hpp"
+#include "GraphEditor.hpp"
 #include <vector>
 #include <string>
 
 class AlgorithmsPanel
 {
 public:
-	AlgorithmsPanel(Graph& graph);
+	AlgorithmsPanel(Graph& graph, GraphEditor& graphEditor);
 
-	void operator()();
+	void run();
 
 private:
 	void selectNode(const std::vector<std::string>& nodesIds, int& outNodeIdx);
 
 private:
 	Graph& graph;
+	GraphEditor& graphEditor;
 
 	enum class SelectedAlgorithm
 	{
@@ -23,5 +24,7 @@ private:
 		DFS,
 		BFS
 	} selectedAlgorithm{ SelectedAlgorithm::None };
-	int startNode = 0;
+	int selectedAlgorithmIdx{ 0 };
+
+	int startNode{ 0 };
 };

@@ -6,7 +6,7 @@ EditPanel::EditPanel(Graph& graph)
 {
 }
 
-void EditPanel::operator()()
+void EditPanel::run()
 {
 	const char* directedName = graph.isDirected() ? "Directed" : "Undirected";
 	int directedInt = graph.isDirected() ? 1 : 0;

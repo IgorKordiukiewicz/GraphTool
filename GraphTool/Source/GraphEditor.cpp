@@ -12,10 +12,16 @@ GraphEditor::GraphEditor(Graph& graph, sf::RenderWindow& window)
 	graph.onDirectedEdgesDeleted.connect("GraphEditor", this, &GraphEditor::onDirectedEdgesDeleted);
 	graph.onUndirectedEdgesDeleted.connect("GraphEditor", this, &GraphEditor::onUndirectedEdgesDeleted);
 	graph.onWeightedValueChanged.connect("GraphEditor", this, &GraphEditor::onGraphWeightedValueChanged);
+
+	traversalOrderAnimation.parent = this;
 }
 
 void GraphEditor::processEvents(sf::Event& event)
 {
+	if (currentPanel != Panel::EditPanel) {
+		return;
+	}
+	
 	const auto mousePosition = window.mapPixelToCoords({ event.mouseButton.x, event.mouseButton.y });
 
 	// Press any mouse button or enter to stop editing edge weight
@@ -74,9 +80,8 @@ void GraphEditor::processEvents(sf::Event& event)
 		}
 	}
 	// Stop holding an edge
-	else if (event.type == sf::Event::MouseButtonPressed 
-		&& event.key.code == sf::Mouse::Right 
-		&& heldEdge.has_value()) {
+	else if (heldEdge.has_value() && ((event.type == sf::Event::MouseButtonPressed && event.key.code == sf::Mouse::Right) 
+		|| (event.type == sf::Event::MouseButtonPressed && !isMouseInsideGraphEditor()))) {
 		heldEdge.reset();
 	}
 	// Move a node
@@ -109,7 +114,19 @@ void GraphEditor::update(float deltaTime)
 		updateHeldNodePtrs();
 	}
 
-	updateTextOpacityAnimationIfRequired(deltaTime);
+	// Update edges shapes
+	if (graph.isDirected()) {
+		for (auto& edgeShape : directedEdgesShapes) {
+			edgeShape.update(deltaTime);
+		}
+	}
+	else {
+		for (auto& edgeShape : undirectedEdgesShapes) {
+			edgeShape.update(deltaTime);
+		}
+	}
+
+	traversalOrderAnimation.update();
 }
 
 void GraphEditor::draw(sf::RenderWindow& window)
@@ -133,6 +150,15 @@ void GraphEditor::draw(sf::RenderWindow& window)
 	// Draw nodes
 	for (const auto& nodeShape : nodesShapes) {
 		nodeShape.draw(window);
+	}
+}
+
+void GraphEditor::setCurrentPanel(Panel newCurrentPanel)
+{
+	currentPanel = newCurrentPanel;
+
+	if (currentPanel != Panel::AlgorithmsPanel && traversalOrderAnimation.isActive()) {
+		traversalOrderAnimation.deactivate();
 	}
 }
 
@@ -178,6 +204,16 @@ void GraphEditor::onGraphWeightedValueChanged()
 	}
 }
 
+void GraphEditor::activateTraversalOrderAnimation(const GraphAlgorithms::TraversalOrder& traversalOrder)
+{
+	traversalOrderAnimation.activate(traversalOrder);
+}
+
+void GraphEditor::deactivateTraversalOrderAnimation()
+{
+	traversalOrderAnimation.deactivate();
+}
+
 bool GraphEditor::isMouseInsideGraphEditor() const
 {
 	const sf::FloatRect graphViewRect{
@@ -188,7 +224,7 @@ bool GraphEditor::isMouseInsideGraphEditor() const
 
 void GraphEditor::stopEditingEdgeWeight()
 {
-	editedEdge->stopTextOpacityAnimation();
+	editedEdge->deactivateTextOpacityAnimation();
 	editedEdge = nullptr;
 }
 
@@ -259,7 +295,7 @@ void GraphEditor::startEditingEdgeWeightIfRequired(const sf::Vector2f& mousePosi
 		for (auto& edgeShape : edgesShapes) {
 			if (edgeShape.getWeightText().getGlobalBounds().contains(mousePosition)) {
 				editedEdge = &edgeShape;
-				editedEdge->startTextOpacityAnimation();
+				editedEdge->activateTextOpacityAnimation();
 				break;
 			}
 		}
@@ -356,19 +392,92 @@ void GraphEditor::updateHeldNodePtrs()
 	}
 }
 
-void GraphEditor::updateTextOpacityAnimationIfRequired(float deltaTime)
+void GraphEditor::TraversalOrderAnimation::activate(const GraphAlgorithms::TraversalOrder& traversalOrder)
 {
-	auto updateEdgeTextOpacityAnimation = [deltaTime](auto& edgesShapes) {
-		for (auto& edgeShape : edgesShapes) {
-			if (edgeShape.isTextOpacityAnimationActive()) {
-				edgeShape.updateTextOpacityAnimation(deltaTime);
+	if (active) {
+		deactivate();
+	}
+	
+	active = true;
+	running = true;
+	this->traversalOrder = traversalOrder;
+	clock.restart();
+	index = 0;
+
+	nodesShapesInOrder.clear();
+	for (const auto a : traversalOrder.nodeOrder) {
+		for (auto& nodeShape : parent->nodesShapes) {
+			if (nodeShape.getNodeId() == a) {
+				nodesShapesInOrder.push_back(&nodeShape);
+				break;
 			}
 		}
-	};
-	if (graph.isDirected()) {
-		updateEdgeTextOpacityAnimation(directedEdgesShapes);
 	}
-	else {
-		updateEdgeTextOpacityAnimation(undirectedEdgesShapes);
+
+	edgesShapesInOrder.clear();
+
+	for (const auto [a, b] : traversalOrder.edgeOrder) {
+		if (parent->graph.isDirected()) {
+			for (auto& edgeShape : parent->directedEdgesShapes) {
+				if (edgeShape.getStartNodeId() == a && edgeShape.getEndNodeId() == b) {
+					edgesShapesInOrder.push_back({ &edgeShape,false });
+					break;
+				}
+			}
+		}
+		else {
+			for (auto& edgeShape : parent->undirectedEdgesShapes) {
+				if (edgeShape.getStartNodeId() == a && edgeShape.getEndNodeId() == b) {
+					edgesShapesInOrder.push_back({ &edgeShape, false });
+					break;
+				}
+				else if (edgeShape.getStartNodeId() == b && edgeShape.getEndNodeId() == a) {
+					edgesShapesInOrder.push_back({ &edgeShape, true });
+					break;
+				}
+			}
+		}
+	}
+
+	nodesShapesInOrder[index]->makeOutlineColored();
+	if (!edgesShapesInOrder.empty()) {
+		edgesShapesInOrder[index].first->activateEdgeTraversalAnimation(edgesShapesInOrder[index].second);
+	}
+	++index;
+}
+
+void GraphEditor::TraversalOrderAnimation::deactivate()
+{
+	active = false;
+	running = false;
+
+	for (auto* nodeShape : nodesShapesInOrder) {
+		nodeShape->resetOutlineColor();
+	}
+
+	for (auto [edgeShape, reversedDirection] : edgesShapesInOrder) {
+		edgeShape->deactivateEdgeTraversalAnimation();
+	}
+}
+
+void GraphEditor::TraversalOrderAnimation::update()
+{
+	if (active && running) {
+		if (clock.getElapsedTime().asSeconds() >= nodeToNodeTime) {
+			if (index < nodesShapesInOrder.size()) {
+				nodesShapesInOrder[index]->makeOutlineColored();
+			}
+			if (index < edgesShapesInOrder.size()) {
+				edgesShapesInOrder[index].first->activateEdgeTraversalAnimation(edgesShapesInOrder[index].second);
+			}	
+			++index;
+
+			clock.restart();
+
+			// Stop animation
+			if (index == nodesShapesInOrder.size()) {
+				running = false;
+			}
+		}
 	}
 }

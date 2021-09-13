@@ -5,15 +5,19 @@ namespace GraphAlgorithms
 {
 	namespace Impl
 	{
-		void dfsImpl(const Graph& graph, int currentNode, TraversalOrder& traversalOrder, VisitedNodes& visitedNodes)
+		void dfsImpl(const Graph& graph, int currentNode, TraversalOrder& traversalOrder, VisitedNodes& visitedNodes, int parentNode = 0)
 		{
 			visitedNodes[currentNode] = true;
-			traversalOrder.push_back(currentNode);
+			if (parentNode != 0) {
+				traversalOrder.edgeOrder.push_back({ parentNode, currentNode });
+			}
+			traversalOrder.nodeOrder.push_back(currentNode);
 
-			const auto& connectedNodes = graph.getAdjacencyList().find(currentNode)->second;
-			for (const auto node : connectedNodes) {
-				if (!visitedNodes[node]) {
-					dfsImpl(graph, node, traversalOrder, visitedNodes);
+			if (const auto it = graph.getAdjacencyList().find(currentNode); it != graph.getAdjacencyList().end()) {
+				for (const auto node : it->second) {
+					if (!visitedNodes[node]) {
+						dfsImpl(graph, node, traversalOrder, visitedNodes, currentNode);
+					}
 				}
 			}
 		}
@@ -26,16 +30,19 @@ namespace GraphAlgorithms
 
 			while (!queue.empty()) {
 				currentNode = queue.front();
-				traversalOrder.push_back(currentNode);
+				traversalOrder.nodeOrder.push_back(currentNode);
 				queue.pop();
 
-				const auto& connectedNodes = graph.getAdjacencyList().find(currentNode)->second;
-				for (const auto node : connectedNodes) {
-					if (!visitedNodes[node]) {
-						visitedNodes[node] = true;
-						queue.push(node);
+				if (const auto it = graph.getAdjacencyList().find(currentNode); it != graph.getAdjacencyList().end()) {
+					for (const auto node : it->second) {
+						if (!visitedNodes[node]) {
+							traversalOrder.edgeOrder.push_back({ currentNode, node });
+							visitedNodes[node] = true;
+							queue.push(node);
+						}
 					}
 				}
+				
 			}
 		}
 	}

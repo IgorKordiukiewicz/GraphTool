@@ -3,10 +3,16 @@
 #include <SFML/Graphics/RenderWindow.hpp>
 #include <SFML/Graphics/Font.hpp>
 #include <vector>
-#include "Graph.hpp"
+#include "GraphAlgorithms.hpp"
 #include "GraphNodeShape.hpp"
 #include "GraphEdgeShape.hpp"
 #include <optional>
+
+enum class Panel
+{
+	EditPanel,
+	AlgorithmsPanel
+};
 
 class GraphEditor
 {
@@ -17,10 +23,15 @@ public:
 	void update(float deltaTime);
 	void draw(sf::RenderWindow& window);
 
+	void setCurrentPanel(Panel newCurrentPanel);
+
 	void onDirectedEdgesDeleted(std::vector<std::pair<int, int>> deletedEdges);
 	void onUndirectedEdgesDeleted(std::vector<std::pair<int, int>> deletedEdges);
 
 	void onGraphWeightedValueChanged();
+
+	void activateTraversalOrderAnimation(const GraphAlgorithms::TraversalOrder& traversalOrder);
+	void deactivateTraversalOrderAnimation();
 
 private:
 	bool isMouseInsideGraphEditor() const;
@@ -36,7 +47,6 @@ private:
 	void startHoldingNode(GraphNodeShape& nodeShape);
 	void updateHeldEdge();
 	void updateHeldNodePtrs();
-	void updateTextOpacityAnimationIfRequired(float deltaTime);
 	
 private:
 	std::vector<GraphNodeShape> nodesShapes;
@@ -45,6 +55,8 @@ private:
 
 	sf::Clock doubleClickClock;
 	const float doubleClickDelay{ 0.2f };
+
+	Panel currentPanel;
 
 	std::optional<GraphEdgeShape> heldEdge{ std::nullopt };
 	struct HeldNodePtrs
@@ -55,6 +67,28 @@ private:
 	};
 	std::optional<HeldNodePtrs> heldNodePtrs{ std::nullopt };
 	GraphEdgeShape* editedEdge{ nullptr };
+
+	class TraversalOrderAnimation
+	{	
+		bool active{ false };
+		bool running{ false };
+		GraphAlgorithms::TraversalOrder traversalOrder;
+		std::vector<GraphNodeShape*> nodesShapesInOrder;
+		// bool - true if direction of the animation should be reversed
+		std::vector<std::pair<GraphEdgeShape*, bool>> edgesShapesInOrder;
+
+		int index{ 0 };
+		float nodeToNodeTime{ 0.5f };
+		sf::Clock clock;
+
+	public:
+		GraphEditor* parent{ nullptr };
+
+		void activate(const GraphAlgorithms::TraversalOrder& traversalOrder);
+		void deactivate();
+		void update();
+		bool isActive() const { return active; }
+	} traversalOrderAnimation;
 
 	sf::Font font;
 

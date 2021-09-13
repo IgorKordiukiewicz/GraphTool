@@ -6,7 +6,7 @@
 #include <iostream>
 
 Application::Application()
-	: graph(), editPanel(graph), algorithmsPanel(graph)
+	: graph()
 {
 	// Initialize window
 	sf::ContextSettings contextSettings;
@@ -21,6 +21,8 @@ Application::Application()
 	ImGui::SFML::UpdateFontTexture();
 
 	graphEditor = std::make_unique<GraphEditor>(graph, window);
+	editPanel = std::make_unique<EditPanel>(graph);
+	algorithmsPanel = std::make_unique<AlgorithmsPanel>(graph, *graphEditor);
 }
 
 void Application::run()
@@ -42,6 +44,7 @@ void Application::run()
 		if (font) {
 			ImGui::PushFont(font);
 		}
+		//ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(ImColor(220, 60, 60)));
 
 		// Setup main imgui window
 		ImGui::Begin("Main Window", (bool*)0,
@@ -53,13 +56,23 @@ void Application::run()
 		if (ImGui::BeginTabBar("MainTabBar")) {
 			// Edit panel
 			if (ImGui::BeginTabItem("Edit")) {
-				editPanel();
+				editPanel->run();
 				ImGui::EndTabItem();
+
+				if (currentPanel != Panel::EditPanel) {
+					graphEditor->setCurrentPanel(Panel::EditPanel);
+					currentPanel = Panel::EditPanel;
+				}
 			}
 			// Algorithms panel
 			if (ImGui::BeginTabItem("Algorithms")) {
-				algorithmsPanel();
+				algorithmsPanel->run();
 				ImGui::EndTabItem();
+
+				if (currentPanel != Panel::AlgorithmsPanel) {
+					graphEditor->setCurrentPanel(Panel::AlgorithmsPanel);
+					currentPanel = Panel::AlgorithmsPanel;
+				}
 			}
 
 			ImGui::EndTabBar();
@@ -68,6 +81,7 @@ void Application::run()
 		if (font) {
 			ImGui::PopFont();
 		}
+		//ImGui::PopStyleColor(1);
 
 		ImGui::End();
 

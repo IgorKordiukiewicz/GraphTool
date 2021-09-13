@@ -8,6 +8,7 @@ GraphEdgeShape::GraphEdgeShape(const sf::Vector2f& startPosition, const sf::Vect
 	// Initialize vertices
 	lineVertices.setPrimitiveType(sf::PrimitiveType::Lines);
 	headVertices.setPrimitiveType(sf::PrimitiveType::Triangles);
+	edgeTraversalAnimation.coloredLineVertices.setPrimitiveType(sf::PrimitiveType::Lines);
 	updateVertices();
 
 	// Initialize weight text
@@ -16,6 +17,12 @@ GraphEdgeShape::GraphEdgeShape(const sf::Vector2f& startPosition, const sf::Vect
 	weightText.setString("0");
 	const auto textRect = weightText.getLocalBounds();
 	weightText.setOrigin(textRect.left + textRect.width / 2.f, textRect.top + textRect.height / 2.f);
+}
+
+void GraphEdgeShape::update(float deltaTime)
+{
+	textOpacityAnimation.update(deltaTime);
+	edgeTraversalAnimation.update(deltaTime);
 }
 
 void GraphEdgeShape::draw(sf::RenderWindow& window) const
@@ -27,6 +34,13 @@ void GraphEdgeShape::draw(sf::RenderWindow& window) const
 
 	if (weighted == Weighted::Yes) {
 		window.draw(weightText);
+	}
+
+	if (edgeTraversalAnimation.isActive()) {
+		window.draw(edgeTraversalAnimation.coloredLineVertices);
+		if(directed == Directed::Yes) {
+			window.draw(edgeTraversalAnimation.coloredHeadVertices);
+		}
 	}
 }
 
@@ -47,41 +61,26 @@ void GraphEdgeShape::setWeight(int newWeight)
 	weightText.setString(std::to_string(newWeight));
 }
 
-void GraphEdgeShape::updateTextOpacityAnimation(float deltaTime)
+void GraphEdgeShape::activateTextOpacityAnimation()
 {
-	if (textOpacityAnimation.isActive) {
-		if (textOpacityAnimation.isValueIncreased) {
-			textOpacityAnimation.value += textOpacityAnimation.speed * deltaTime;
-			if (textOpacityAnimation.value >= 255.f) {
-				textOpacityAnimation.value = 255.f;
-				textOpacityAnimation.isValueIncreased = false;
-			}
-		}
-		else {
-			textOpacityAnimation.value -= textOpacityAnimation.speed * deltaTime;
-			if (textOpacityAnimation.value <= 0.f) {
-				textOpacityAnimation.value = 0.f;
-				textOpacityAnimation.isValueIncreased = true;
-			}
-		}
-
-		weightText.setFillColor({ 255, 255, 255, static_cast<sf::Uint8>(textOpacityAnimation.value) });
-	}
+	textOpacityAnimation.parent = this;
+	textOpacityAnimation.activate();
 }
 
-void GraphEdgeShape::startTextOpacityAnimation()
+void GraphEdgeShape::deactivateTextOpacityAnimation()
 {
-	textOpacityAnimation.isActive = true;
-	// Reset text opacity animation properties
-	textOpacityAnimation.value = 255.f;
-	textOpacityAnimation.isValueIncreased = false;
+	textOpacityAnimation.deactivate();
 }
 
-void GraphEdgeShape::stopTextOpacityAnimation()
+void GraphEdgeShape::activateEdgeTraversalAnimation(bool reversedDirection)
 {
-	textOpacityAnimation.isActive = false;
-	// Reset the color to full opacity
-	weightText.setFillColor({ 255, 255, 255, 255 });
+	edgeTraversalAnimation.parent = this;
+	edgeTraversalAnimation.activate(reversedDirection);
+}
+
+void GraphEdgeShape::deactivateEdgeTraversalAnimation()
+{
+	edgeTraversalAnimation.deactivate();
 }
 
 void GraphEdgeShape::makeDirected()
@@ -149,11 +148,11 @@ void GraphEdgeShape::updateVertices()
 
 	const sf::Vector2f orthDirVecNormalized{ dirVecNormalized.y * -1.f, dirVecNormalized.x };
 	const sf::Vector2f offsetVec = orthDirVecNormalized * (isOrthogonalOffsetEnabled ? orthogonalOffset : 0.f);
-	const sf::Vector2f startPositionFixed = startPosition + offsetVec;
+	startPositionFixed = startPosition + offsetVec;
 
 	// If endNodeId is equal to -1, it means that the edge is held by the user, otherwise it is attached to a node, 
 	// so the end position has to be recalculated so that the arrow head is not inside the node 
-	const sf::Vector2f endPositionFixed = [this, &dirVec, &dirVecLength, &offsetVec]() {
+	endPositionFixed = [this, &dirVec, &dirVecLength, &offsetVec]() {
 		sf::Vector2f result = endPosition;
 		result += offsetVec;
 		if (endNodeId != -1) {
@@ -194,4 +193,101 @@ void GraphEdgeShape::updateVertices()
 
 	// Update text position
 	weightText.setPosition(startPositionFixed + (orthDirVecNormalized * weightTextOrthOffset) - (dirVec / 2.f));
+}
+
+void GraphEdgeShape::TextOpacityAnimation::activate()
+{
+	active = true;
+	// Reset animation properties
+	value = 255.f;
+	isValueIncreased = false;
+}
+
+void GraphEdgeShape::TextOpacityAnimation::deactivate()
+{
+	active = false;
+	// Reset the color to full opacity
+	parent->weightText.setFillColor({ 255, 255, 255, 255 });
+}
+
+void GraphEdgeShape::TextOpacityAnimation::update(float deltaTime)
+{
+	if (active) {
+		if (isValueIncreased) {
+			value += speed * deltaTime;
+			if (value >= 255.f) {
+				value = 255.f;
+				isValueIncreased = false;
+			}
+		}
+		else {
+			value -= speed * deltaTime;
+			if (value <= 0.f) {
+				value = 0.f;
+				isValueIncreased = true;
+			}
+		}
+
+		parent->weightText.setFillColor({ 255, 255, 255, static_cast<sf::Uint8>(value) });
+	}
+}
+
+void GraphEdgeShape::EdgeTraversalAnimation::activate(bool reversedDirection)
+{
+	active = true;
+	running = true;
+	clock.restart();
+	this->reversedDirection = reversedDirection;
+}
+
+void GraphEdgeShape::EdgeTraversalAnimation::deactivate()
+{
+	active = false;
+	running = false;
+	coloredLineVertices.clear();
+	coloredHeadVertices.clear();
+}
+
+void GraphEdgeShape::EdgeTraversalAnimation::update(float deltaTime)
+{
+	if (active && running) {
+		const sf::Vector2f dirVec = [this]() {
+			if (reversedDirection) {
+				return parent->startPositionFixed - parent->endPositionFixed;
+			}
+			else {
+				return parent->endPositionFixed - parent->startPositionFixed;
+			}
+		}();
+		const float dirVecLength = sqrt(dirVec.x * dirVec.x + dirVec.y * dirVec.y);
+		const float lengthFraction = [this, &dirVecLength]() {
+			float result = (clock.getElapsedTime().asSeconds() / totalTime) * dirVecLength;
+			result = std::clamp(result, 0.f, dirVecLength);
+			return result;
+		}();
+		const sf::Vector2f dirVecNormalized = dirVec / dirVecLength;
+
+		// Update colored line vertices
+		coloredLineVertices.clear();
+		if (reversedDirection) {
+			coloredLineVertices.append({ parent->endPositionFixed, color });
+			coloredLineVertices.append({ parent->endPositionFixed + dirVecNormalized * lengthFraction, color });
+		}
+		else {
+			coloredLineVertices.append({ parent->startPositionFixed, color });
+			coloredLineVertices.append({ parent->startPositionFixed + dirVecNormalized * lengthFraction, color });
+		}
+
+		// Update colored head vertices
+		if (parent->directed == Directed::Yes && (clock.getElapsedTime().asSeconds() / totalTime) > 0.95f) {
+			coloredHeadVertices = parent->headVertices;
+			coloredHeadVertices[0].color = color;
+			coloredHeadVertices[1].color = color;
+			coloredHeadVertices[2].color = color;
+		}
+
+		if (clock.getElapsedTime().asSeconds() > totalTime) {
+			running = false;
+		}
+	}
 }

@@ -11,16 +11,17 @@ class GraphEdgeShape
 public:
 	GraphEdgeShape(const sf::Vector2f& startPosition, const sf::Vector2f& endPosition, int startNodeId, int endNodeId, Directed graphType, Weighted weighted);
 
+	void update(float deltaTime);
 	void draw(sf::RenderWindow& window) const;
 
 	void setStartPosition(const sf::Vector2f& newStartPosition);
 	void setEndPosition(const sf::Vector2f& newEndPosition);
 	void setWeight(int newWeight);
 
-	void updateTextOpacityAnimation(float deltaTime);
-	void startTextOpacityAnimation();
-	void stopTextOpacityAnimation();
-	bool isTextOpacityAnimationActive() const { return textOpacityAnimation.isActive; }
+	void activateTextOpacityAnimation();
+	void deactivateTextOpacityAnimation();
+	void activateEdgeTraversalAnimation(bool reversedDirection);
+	void deactivateEdgeTraversalAnimation();
 
 	void makeDirected();
 	void makeUndirected();
@@ -47,6 +48,8 @@ private:
 
 	sf::Vector2f startPosition;
 	sf::Vector2f endPosition;
+	sf::Vector2f startPositionFixed;
+	sf::Vector2f endPositionFixed;
 	int startNodeId;
 	int endNodeId;
 
@@ -65,11 +68,40 @@ private:
 
 	sf::Text weightText;
 	float weightTextOrthOffset = 10.f;
-	struct TextOpacityAnimation
+
+	class TextOpacityAnimation
 	{
-		bool isActive{ false };
+		bool active{ false };
 		float speed{ 400.f };
 		float value{ 255.f };
 		bool isValueIncreased{ false };
+
+	public:
+		GraphEdgeShape* parent{ nullptr };
+
+		void activate();
+		void deactivate();
+		void update(float deltaTime);
 	} textOpacityAnimation;
+
+	class EdgeTraversalAnimation
+	{
+		bool active{ false };
+		bool running{ false };
+		// By default animation direction will be from startPosition to endPosition
+		bool reversedDirection{ false };
+		sf::Clock clock;
+		float totalTime{ 0.5f };
+		sf::Color color{ 220, 60, 60 };
+
+	public:
+		GraphEdgeShape* parent{ nullptr };
+		sf::VertexArray coloredLineVertices;
+		sf::VertexArray coloredHeadVertices;
+
+		void activate(bool reversedDirection);
+		void deactivate();
+		void update(float deltaTime);
+		bool isActive() const { return active; }
+	} edgeTraversalAnimation;
 };
