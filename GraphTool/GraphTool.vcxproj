@@ -154,6 +154,7 @@
     <ClCompile Include="3rdParty\ImGui\imgui_widgets.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Source\AlgorithmsPanel.cpp" />
+    <ClCompile Include="Source\Animations.cpp" />
     <ClCompile Include="Source\Application.cpp" />
     <ClCompile Include="Source\EditPanel.cpp" />
     <ClCompile Include="Source\Graph.cpp" />
@@ -166,6 +167,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Include\AlgorithmsPanel.hpp" />
+    <ClInclude Include="Include\Animations.hpp" />
     <ClInclude Include="Include\Application.hpp" />
     <ClInclude Include="Include\Utilities.hpp" />
     <ClInclude Include="Include\EditPanel.hpp" />

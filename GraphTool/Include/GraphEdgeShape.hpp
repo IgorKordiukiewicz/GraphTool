@@ -6,6 +6,7 @@
 #include "Graph.hpp"
 #include <array>
 #include "Utilities.hpp"
+#include "Animations.hpp"
 
 class GraphEdgeShape
 {
@@ -70,37 +71,9 @@ private:
 	sf::Text weightText;
 	float weightTextOrthOffset = 10.f;
 
-	class TextOpacityAnimation
-	{
-		bool active{ false };
-		float speed{ 400.f };
-		float value{ 255.f };
-		bool isValueIncreased{ false };
+	friend Animations::TextOpacityAnimation;
+	Animations::TextOpacityAnimation textOpacityAnimation;
 
-	public:
-		GraphEdgeShape* parent{ nullptr };
-
-		void activate();
-		void deactivate();
-		void update(float deltaTime);
-	} textOpacityAnimation;
-
-	class EdgeTraversalAnimation
-	{
-		bool active{ false };
-		bool running{ false };
-		// By default animation direction will be from startPosition to endPosition
-		bool reversedDirection{ false };
-		sf::Clock clock;
-
-	public:
-		GraphEdgeShape* parent{ nullptr };
-		sf::VertexArray coloredLineVertices;
-		sf::VertexArray coloredHeadVertices;
-
-		void activate(bool reversedDirection);
-		void deactivate();
-		void update(float deltaTime);
-		bool isActive() const { return active; }
-	} edgeTraversalAnimation;
+	friend Animations::EdgeTraversalAnimation;
+	Animations::EdgeTraversalAnimation edgeTraversalAnimation;
 };

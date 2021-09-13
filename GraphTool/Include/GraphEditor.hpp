@@ -3,10 +3,9 @@
 #include <SFML/Graphics/RenderWindow.hpp>
 #include <SFML/Graphics/Font.hpp>
 #include <vector>
-#include "GraphAlgorithms.hpp"
-#include "GraphNodeShape.hpp"
-#include "GraphEdgeShape.hpp"
 #include <optional>
+#include "Animations.hpp"
+#include "GraphEdgeShape.hpp"
 
 enum class Panel
 {
@@ -71,33 +70,8 @@ private:
 	std::optional<HeldNodePtrs> heldNodePtrs{ std::nullopt };
 	GraphEdgeShape* editedEdge{ nullptr };
 
-	class TraversalOrderAnimation
-	{	
-		bool active{ false };
-		bool running{ false };
-		GraphAlgorithms::TraversalOrder traversalOrder;
-		std::map<int, sf::Color> nodesColors;
-		std::vector<std::pair<GraphNodeShape*, sf::Color>> nodesShapesInOrder;
-		// bool - true if direction of the animation should be reversed
-		std::vector<std::pair<GraphEdgeShape*, bool>> edgesShapesInOrder;
-
-		int index{ 0 };
-		sf::Clock clock;
-		bool loop{ false };
-		float loopDelay{  };
-
-	public:
-		GraphEditor* parent{ nullptr };
-
-		void activate(const GraphAlgorithms::TraversalOrder& traversalOrder);
-		void activate(const GraphAlgorithms::TraversalOrder& traversalOrder, const GraphAlgorithms::NodesColorsIdxs& nodesColorsIdxs);
-		void run();
-		void deactivate();
-		void update();
-		void startLooping();
-		void stopLooping();
-		bool isActive() const { return active; }
-	} traversalOrderAnimation;
+	friend Animations::TraversalOrderAnimation;
+	Animations::TraversalOrderAnimation traversalOrderAnimation;
 
 	sf::Font font;
 
