@@ -37,6 +37,25 @@ void Graph::setEdgeWeight(int a, int b, int newWeight)
 	}
 }
 
+int Graph::getEdgeWeight(int a, int b) const
+{
+	if (!doesEdgeExist(a, b)) {
+		return 0;
+	}
+	
+	if (isWeighted()) {
+		if (isDirected()) {
+			return directedEdges.find({ a, b })->weight;
+		}
+		else {
+			return undirectedEdges.find({ std::min(a, b), std::max(a, b) })->weight;
+		}
+	}
+	else {
+		return 1;
+	}
+}
+
 int Graph::createNode()
 {
 	Node node{ nextNodeId++ };

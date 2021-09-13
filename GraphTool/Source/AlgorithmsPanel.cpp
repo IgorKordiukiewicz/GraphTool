@@ -25,6 +25,10 @@ void AlgorithmsPanel::run()
 		selectedAlgorithm = SelectedAlgorithm::BFS;
 		selectedAlgorithmIdx = 2;
 	}
+	if (ImGui::Selectable("Dijkstra's Shortest Path", selectedAlgorithmIdx == 3)) {
+		selectedAlgorithm = SelectedAlgorithm::Dijkstra;
+		selectedAlgorithmIdx = 3;
+	}
 
 	if (selectedAlgorithmIdx != oldSelectedAlgorithmIdx) {
 		graphEditor.deactivateTraversalOrderAnimation();
@@ -51,13 +55,24 @@ void AlgorithmsPanel::run()
 			graphEditor.activateTraversalOrderAnimation(result);
 		}
 	}
+	else if (selectedAlgorithm == SelectedAlgorithm::Dijkstra) {
+		ImGui::Text("Dijkstra's Shortest Path");
+		const auto nodesIds = graph.getNodesIdsStrings();
+		selectNode(nodesIds, startNode);
+		selectNode(nodesIds, endNode, "##SelectEndNodeLabel");
+
+		if (ImGui::Button("Execute")) {
+			auto result = ga::dijkstra(graph, std::stoi(nodesIds[startNode]), std::stoi(nodesIds[endNode]));
+			graphEditor.activateTraversalOrderAnimation(result);
+		}
+	}
 }
 
-void AlgorithmsPanel::selectNode(const std::vector<std::string>& nodesIds, int& outNodeIdx)
+void AlgorithmsPanel::selectNode(const std::vector<std::string>& nodesIds, int& outNodeIdx, const char* label)
 {
 	const char* comboLabel = nodesIds.empty() ? "" : nodesIds[outNodeIdx].c_str();
 
-	if (ImGui::BeginCombo("##SelectStartNodeCombo", comboLabel)) {
+	if (ImGui::BeginCombo(label, comboLabel)) {
 		for (int i = 0; i < nodesIds.size(); ++i) {
 			bool isSelected = (outNodeIdx == i);
 			if (ImGui::Selectable(nodesIds[i].c_str(), isSelected)) {

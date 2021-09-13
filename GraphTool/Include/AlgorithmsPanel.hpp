@@ -12,7 +12,7 @@ public:
 	void run();
 
 private:
-	void selectNode(const std::vector<std::string>& nodesIds, int& outNodeIdx);
+	void selectNode(const std::vector<std::string>& nodesIds, int& outNodeIdx, const char* label = "##SelectStartNodeCombo");
 
 private:
 	Graph& graph;
@@ -22,9 +22,11 @@ private:
 	{
 		None,
 		DFS,
-		BFS
+		BFS,
+		Dijkstra
 	} selectedAlgorithm{ SelectedAlgorithm::None };
 	int selectedAlgorithmIdx{ 0 };
 
 	int startNode{ 0 };
+	int endNode{ 0 };
 };

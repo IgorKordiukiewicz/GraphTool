@@ -71,6 +71,7 @@ public:
 	void addEdge(int a, int b, int weight = 0);
 
 	void setEdgeWeight(int a, int b, int newWeight);
+	int getEdgeWeight(int a, int b) const;
 
 	// Creates a new node and returns id of the node
 	int createNode();
