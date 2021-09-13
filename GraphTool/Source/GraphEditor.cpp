@@ -43,7 +43,7 @@ void GraphEditor::processEvents(sf::Event& event)
 				isMouseOverNodeShape = true;
 
 				// If user was already holding an edge, attach it to this node
-				if (heldEdge.has_value()) {
+				if (heldEdge.has_value() && heldEdge->getStartNodeId() != nodeShape.getNodeId()) {
 					attachHeldEdge(nodeShape);
 				}
 				else {
@@ -63,8 +63,7 @@ void GraphEditor::processEvents(sf::Event& event)
 
 			if (graph.isWeighted()) {
 				startEditingEdgeWeightIfRequired(mousePosition);
-			}
-			
+			}	
 		}	
 	}
 	// Delete node/edge
