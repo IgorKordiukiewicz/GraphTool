@@ -23,7 +23,8 @@ private:
 		None,
 		DFS,
 		BFS,
-		Dijkstra
+		Dijkstra,
+		Coloring
 	} selectedAlgorithm{ SelectedAlgorithm::None };
 	int selectedAlgorithmIdx{ 0 };
 

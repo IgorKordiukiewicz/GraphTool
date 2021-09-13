@@ -29,6 +29,10 @@ void AlgorithmsPanel::run()
 		selectedAlgorithm = SelectedAlgorithm::Dijkstra;
 		selectedAlgorithmIdx = 3;
 	}
+	if (ImGui::Selectable("Graph Coloring", selectedAlgorithmIdx == 4)) {
+		selectedAlgorithm = SelectedAlgorithm::Coloring;
+		selectedAlgorithmIdx = 4;
+	}
 
 	if (selectedAlgorithmIdx != oldSelectedAlgorithmIdx) {
 		graphEditor.deactivateTraversalOrderAnimation();
@@ -41,8 +45,8 @@ void AlgorithmsPanel::run()
 		selectNode(nodesIds, startNode);
 
 		if (ImGui::Button("Execute")) {
-			auto result = ga::dfs(graph, std::stoi(nodesIds[startNode]));
-			graphEditor.activateTraversalOrderAnimation(result);
+			const auto traversalOrder = ga::dfs(graph, std::stoi(nodesIds[startNode]));
+			graphEditor.activateTraversalOrderAnimation(traversalOrder);
 		}
 	}
 	else if (selectedAlgorithm == SelectedAlgorithm::BFS) {
@@ -51,8 +55,8 @@ void AlgorithmsPanel::run()
 		selectNode(nodesIds, startNode);
 
 		if (ImGui::Button("Execute")) {
-			auto result = ga::bfs(graph, std::stoi(nodesIds[startNode]));
-			graphEditor.activateTraversalOrderAnimation(result);
+			const auto traversalOrder = ga::bfs(graph, std::stoi(nodesIds[startNode]));
+			graphEditor.activateTraversalOrderAnimation(traversalOrder);
 		}
 	}
 	else if (selectedAlgorithm == SelectedAlgorithm::Dijkstra) {
@@ -62,8 +66,16 @@ void AlgorithmsPanel::run()
 		selectNode(nodesIds, endNode, "##SelectEndNodeLabel");
 
 		if (ImGui::Button("Execute")) {
-			auto result = ga::dijkstra(graph, std::stoi(nodesIds[startNode]), std::stoi(nodesIds[endNode]));
-			graphEditor.activateTraversalOrderAnimation(result);
+			const auto traversalOrder = ga::dijkstra(graph, std::stoi(nodesIds[startNode]), std::stoi(nodesIds[endNode]));
+			graphEditor.activateTraversalOrderAnimation(traversalOrder);
+		}
+	}
+	else if (selectedAlgorithm == SelectedAlgorithm::Coloring) {
+		ImGui::Text("Graph Coloring");
+
+		if (ImGui::Button("Execute")) {
+			const auto[traversalOrder, nodesColorsIdxs] = ga::coloring(graph);
+			graphEditor.activateTraversalOrderAnimation(traversalOrder, nodesColorsIdxs);
 		}
 	}
 }

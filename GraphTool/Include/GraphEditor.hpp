@@ -31,6 +31,7 @@ public:
 	void onGraphWeightedValueChanged();
 
 	void activateTraversalOrderAnimation(const GraphAlgorithms::TraversalOrder& traversalOrder);
+	void activateTraversalOrderAnimation(const GraphAlgorithms::TraversalOrder& traversalOrder, const GraphAlgorithms::NodesColorsIdxs& nodesColorsIdxs);
 	void deactivateTraversalOrderAnimation();
 
 private:
@@ -73,7 +74,8 @@ private:
 		bool active{ false };
 		bool running{ false };
 		GraphAlgorithms::TraversalOrder traversalOrder;
-		std::vector<GraphNodeShape*> nodesShapesInOrder;
+		std::map<int, sf::Color> nodesColors;
+		std::vector<std::pair<GraphNodeShape*, sf::Color>> nodesShapesInOrder;
 		// bool - true if direction of the animation should be reversed
 		std::vector<std::pair<GraphEdgeShape*, bool>> edgesShapesInOrder;
 
@@ -84,6 +86,7 @@ private:
 		GraphEditor* parent{ nullptr };
 
 		void activate(const GraphAlgorithms::TraversalOrder& traversalOrder);
+		void activate(const GraphAlgorithms::TraversalOrder& traversalOrder, const GraphAlgorithms::NodesColorsIdxs& nodesColorsIdxs);
 		void deactivate();
 		void update();
 		bool isActive() const { return active; }

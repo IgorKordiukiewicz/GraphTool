@@ -15,8 +15,8 @@ public:
 
 	void setPosition(const sf::Vector2f& newPosition);
 
-	void makeOutlineColored();
-	void resetOutlineColor();
+	void makeColored(const sf::Color& color);
+	void resetColor();
 
 	const sf::CircleShape& getShape() const { return shape; }
 	int getNodeId() const { return nodeId; }

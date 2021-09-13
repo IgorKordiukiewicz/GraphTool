@@ -80,7 +80,9 @@ void GraphEdgeShape::activateEdgeTraversalAnimation(bool reversedDirection)
 
 void GraphEdgeShape::deactivateEdgeTraversalAnimation()
 {
-	edgeTraversalAnimation.deactivate();
+	if (edgeTraversalAnimation.isActive()) {
+		edgeTraversalAnimation.deactivate();
+	}
 }
 
 void GraphEdgeShape::makeDirected()

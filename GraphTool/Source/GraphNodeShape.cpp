@@ -1,6 +1,6 @@
 #include "../Include/GraphNodeShape.hpp"
 #include "../Include/ResourceManager.hpp"
-#include "../Include/Constants.hpp"
+#include "../Include/Utilities.hpp"
 
 GraphNodeShape::GraphNodeShape(int nodeId, const sf::Vector2f& position)
 	: nodeId(nodeId)
@@ -9,8 +9,7 @@ GraphNodeShape::GraphNodeShape(int nodeId, const sf::Vector2f& position)
 	shape.setRadius(Constants::nodeRadius);
 	shape.setOrigin({ Constants::nodeRadius, Constants::nodeRadius });
 	shape.setPosition(position);
-	shape.setFillColor(Constants::mainColor);
-	shape.setOutlineColor(sf::Color::White);
+	shape.setFillColor({ 255, 255, 255 });
 	shape.setOutlineThickness(Constants::nodeOutlineThickness);
 
 	// Initialize text
@@ -20,6 +19,7 @@ GraphNodeShape::GraphNodeShape(int nodeId, const sf::Vector2f& position)
 	const auto textRect = text.getLocalBounds();
 	text.setOrigin(textRect.left + textRect.width / 2.f, textRect.top + textRect.height / 2.f);
 	text.setPosition(position);
+	text.setFillColor({ 50, 50, 50 });
 }
 
 void GraphNodeShape::draw(sf::RenderWindow& window) const
@@ -34,12 +34,14 @@ void GraphNodeShape::setPosition(const sf::Vector2f& newPosition)
 	text.setPosition(newPosition);
 }
 
-void GraphNodeShape::makeOutlineColored()
+void GraphNodeShape::makeColored(const sf::Color& color)
 {
-	shape.setOutlineColor(Constants::mainColor);
+	shape.setFillColor(color);
+	text.setFillColor(sf::Color::White);
 }
 
-void GraphNodeShape::resetOutlineColor()
+void GraphNodeShape::resetColor()
 {
-	shape.setOutlineColor(sf::Color::White);
+	shape.setFillColor({ 255, 255, 255 });
+	text.setFillColor({ 50,50,50 });
 }

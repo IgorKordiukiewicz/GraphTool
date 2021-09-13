@@ -100,6 +100,53 @@ namespace GraphAlgorithms
 				traversalOrder.edgeOrder.push_back({ lastNode, endNode });
 			}
 		}
+
+		void coloringImpl(const Graph& graph, TraversalOrder& traversalOrder, NodesColorsIdxs& nodesColorsIdxs)
+		{
+			std::map<int, bool> availableColorsIdxs;
+
+			for (const auto& node : graph.getNodes()) {
+				nodesColorsIdxs[node.id] = 0;
+				traversalOrder.nodeOrder.push_back(node.id);
+				break;
+			}
+
+			for (int i = 0; i < graph.getNodes().size(); ++i) {
+				availableColorsIdxs.emplace(i, false);
+			}
+
+			bool firstLoop{ true };
+			for (const auto& node : graph.getNodes()) {
+				if (firstLoop) {
+					firstLoop = false;
+					continue;
+				}
+
+				if (const auto it = graph.getAdjacencyList().find(node.id); it != graph.getAdjacencyList().end()) {
+					for (const auto nodeId : it->second) {
+						if (nodesColorsIdxs[nodeId].has_value()) {
+							availableColorsIdxs[*nodesColorsIdxs[nodeId]] = true;
+						}
+					}
+
+					int availableColorIdx = 0;
+					for (availableColorIdx; availableColorIdx < graph.getNodes().size(); ++availableColorIdx) {
+						if (!availableColorsIdxs[availableColorIdx]) {
+							break;
+						}
+					}
+
+					nodesColorsIdxs[node.id] = availableColorIdx;
+					traversalOrder.nodeOrder.push_back(node.id);
+
+					for (const auto nodeId : it->second) {
+						if (nodesColorsIdxs[nodeId].has_value()) {
+							availableColorsIdxs[*nodesColorsIdxs[nodeId]] = false;
+						}
+					}
+				}
+			}
+		}
 	}
 	
 	TraversalOrder dfs(const Graph& graph, int startNode)
@@ -129,5 +176,15 @@ namespace GraphAlgorithms
 		Impl::dijkstraImpl(graph, startNode, endNode, traversalOrder);
 
 		return traversalOrder;
+	}
+
+	std::pair<TraversalOrder, NodesColorsIdxs> coloring(const Graph& graph)
+	{
+		TraversalOrder traversalOrder;
+		NodesColorsIdxs nodesColors;
+		
+		Impl::coloringImpl(graph, traversalOrder, nodesColors);
+
+		return { traversalOrder, nodesColors };
 	}
 }

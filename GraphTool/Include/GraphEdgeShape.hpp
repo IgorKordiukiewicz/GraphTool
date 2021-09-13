@@ -5,7 +5,7 @@
 #include <SFML/Graphics/Text.hpp>
 #include "Graph.hpp"
 #include <array>
-#include "Constants.hpp"
+#include "Utilities.hpp"
 
 class GraphEdgeShape
 {

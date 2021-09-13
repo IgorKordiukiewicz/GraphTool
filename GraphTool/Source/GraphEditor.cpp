@@ -1,7 +1,7 @@
 #include "..\Include\GraphEditor.hpp"
 #include <SFML/Graphics.hpp>
 #include <iostream>
-#include "../Include/Constants.hpp"
+#include "../Include/Utilities.hpp"
 
 GraphEditor::GraphEditor(Graph& graph, sf::RenderWindow& window)
 	: graph(graph), window(window)
@@ -209,6 +209,11 @@ void GraphEditor::activateTraversalOrderAnimation(const GraphAlgorithms::Travers
 	traversalOrderAnimation.activate(traversalOrder);
 }
 
+void GraphEditor::activateTraversalOrderAnimation(const GraphAlgorithms::TraversalOrder& traversalOrder, const GraphAlgorithms::NodesColorsIdxs& nodesColorsIdxs)
+{
+	traversalOrderAnimation.activate(traversalOrder, nodesColorsIdxs);
+}
+
 void GraphEditor::deactivateTraversalOrderAnimation()
 {
 	traversalOrderAnimation.deactivate();
@@ -408,7 +413,12 @@ void GraphEditor::TraversalOrderAnimation::activate(const GraphAlgorithms::Trave
 	for (const auto a : traversalOrder.nodeOrder) {
 		for (auto& nodeShape : parent->nodesShapes) {
 			if (nodeShape.getNodeId() == a) {
-				nodesShapesInOrder.push_back(&nodeShape);
+				if (nodesColors.empty()) {
+					nodesShapesInOrder.push_back({ &nodeShape, Constants::mainColor });
+				}
+				else {
+					nodesShapesInOrder.push_back({ &nodeShape, nodesColors[a] });
+				}
 				break;
 			}
 		}
@@ -439,25 +449,57 @@ void GraphEditor::TraversalOrderAnimation::activate(const GraphAlgorithms::Trave
 		}
 	}
 
-	nodesShapesInOrder[index]->makeOutlineColored();
+	nodesShapesInOrder[index].first->makeColored(nodesShapesInOrder[index].second);
 	if (!edgesShapesInOrder.empty()) {
 		edgesShapesInOrder[index].first->activateEdgeTraversalAnimation(edgesShapesInOrder[index].second);
 	}
 	++index;
 }
 
+void GraphEditor::TraversalOrderAnimation::activate(const GraphAlgorithms::TraversalOrder& traversalOrder, const GraphAlgorithms::NodesColorsIdxs& nodesColorsIdxs)
+{
+	const int totalColorsCount = [&nodesColorsIdxs]() {
+		std::set<int> colorsIdxs;
+		for (const auto [nodeId, colorIdx] : nodesColorsIdxs) {
+			if (colorIdx.has_value()) {
+				colorsIdxs.insert(*colorIdx);
+			}
+		}
+		return colorsIdxs.size();
+	}();
+	const auto colors = Colors::generateColors(totalColorsCount);
+	
+	// Generate nodes colors
+	for (const auto [nodeId, colorIdx] : nodesColorsIdxs) {
+		if (colorIdx.has_value()) {
+			nodesColors.emplace(nodeId, colors[*colorIdx]);
+		}
+		else {
+			nodesColors.emplace(nodeId, sf::Color{ 0, 0, 0 });
+		}
+	}
+	
+	activate(traversalOrder);
+}
+
 void GraphEditor::TraversalOrderAnimation::deactivate()
 {
+	if (!active) {
+		return;
+	}
+	
 	active = false;
 	running = false;
 
-	for (auto* nodeShape : nodesShapesInOrder) {
-		nodeShape->resetOutlineColor();
+	for (auto [nodeShape, color] : nodesShapesInOrder) {
+		nodeShape->resetColor();
 	}
 
 	for (auto [edgeShape, reversedDirection] : edgesShapesInOrder) {
 		edgeShape->deactivateEdgeTraversalAnimation();
 	}
+
+	nodesColors.clear();
 }
 
 void GraphEditor::TraversalOrderAnimation::update()
@@ -465,7 +507,7 @@ void GraphEditor::TraversalOrderAnimation::update()
 	if (active && running) {
 		if (clock.getElapsedTime().asSeconds() >= Constants::traversalAnimationTime) {
 			if (index < nodesShapesInOrder.size()) {
-				nodesShapesInOrder[index]->makeOutlineColored();
+				nodesShapesInOrder[index].first->makeColored(nodesShapesInOrder[index].second);
 			}
 			if (index < edgesShapesInOrder.size()) {
 				edgesShapesInOrder[index].first->activateEdgeTraversalAnimation(edgesShapesInOrder[index].second);
