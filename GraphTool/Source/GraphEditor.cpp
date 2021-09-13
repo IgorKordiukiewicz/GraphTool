@@ -1,6 +1,7 @@
 #include "..\Include\GraphEditor.hpp"
 #include <SFML/Graphics.hpp>
 #include <iostream>
+#include "../Include/Constants.hpp"
 
 GraphEditor::GraphEditor(Graph& graph, sf::RenderWindow& window)
 	: graph(graph), window(window)
@@ -217,8 +218,8 @@ void GraphEditor::deactivateTraversalOrderAnimation()
 bool GraphEditor::isMouseInsideGraphEditor() const
 {
 	const sf::FloatRect graphViewRect{
-			static_cast<float>(window.getSize().x) * 0.25f, 0.f, // 0.25f, because the imgui window's length is 1/4 of the app window length, TODO: make it not hardcoded
-			static_cast<float>(window.getSize().x) * 0.75f, static_cast<float>(window.getSize().y) };
+			static_cast<float>(window.getSize().x) * Constants::imGuiWindowWidth, 0.f,
+			static_cast<float>(window.getSize().x) * (1.0f - Constants::imGuiWindowWidth), static_cast<float>(window.getSize().y) };
 	return graphViewRect.contains(sf::Vector2f(sf::Mouse::getPosition(window)));
 }
 
@@ -463,7 +464,7 @@ void GraphEditor::TraversalOrderAnimation::deactivate()
 void GraphEditor::TraversalOrderAnimation::update()
 {
 	if (active && running) {
-		if (clock.getElapsedTime().asSeconds() >= nodeToNodeTime) {
+		if (clock.getElapsedTime().asSeconds() >= Constants::traversalAnimationTime) {
 			if (index < nodesShapesInOrder.size()) {
 				nodesShapesInOrder[index]->makeOutlineColored();
 			}

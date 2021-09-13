@@ -8,6 +8,9 @@ EditPanel::EditPanel(Graph& graph)
 
 void EditPanel::run()
 {
+	// Take whole available width
+	ImGui::PushItemWidth(-FLT_MIN);
+	
 	const char* directedName = graph.isDirected() ? "Directed" : "Undirected";
 	int directedInt = graph.isDirected() ? 1 : 0;
 	ImGui::SliderInt("##GraphDirectedSlider", &directedInt, 0, 1, directedName);
@@ -27,6 +30,8 @@ void EditPanel::run()
 	else {
 		graph.makeUnweighted();
 	}
+
+	ImGui::PopItemWidth();
 
 	ImGui::Separator();
 	ImGui::Text("Double LMB to add new node");

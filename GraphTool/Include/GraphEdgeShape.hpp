@@ -5,6 +5,7 @@
 #include <SFML/Graphics/Text.hpp>
 #include "Graph.hpp"
 #include <array>
+#include "Constants.hpp"
 
 class GraphEdgeShape
 {
@@ -91,8 +92,6 @@ private:
 		// By default animation direction will be from startPosition to endPosition
 		bool reversedDirection{ false };
 		sf::Clock clock;
-		float totalTime{ 0.5f };
-		sf::Color color{ 220, 60, 60 };
 
 	public:
 		GraphEdgeShape* parent{ nullptr };

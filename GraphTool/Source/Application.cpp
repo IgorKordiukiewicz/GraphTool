@@ -16,6 +16,11 @@ Application::Application()
 	window.setFramerateLimit(30);
 	ImGui::SFML::Init(window);
 
+	// Set window icon
+	sf::Image icon;
+	icon.loadFromFile("Resources/icon.png");
+	window.setIcon(64, 64, icon.getPixelsPtr());
+
 	// Add custom font
 	font = ResourceManager::instance().getImGuiFont();
 	ImGui::SFML::UpdateFontTexture();

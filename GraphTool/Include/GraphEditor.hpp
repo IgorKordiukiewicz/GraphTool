@@ -56,7 +56,7 @@ private:
 	sf::Clock doubleClickClock;
 	const float doubleClickDelay{ 0.2f };
 
-	Panel currentPanel;
+	Panel currentPanel{ Panel::EditPanel };
 
 	std::optional<GraphEdgeShape> heldEdge{ std::nullopt };
 	struct HeldNodePtrs
@@ -78,7 +78,6 @@ private:
 		std::vector<std::pair<GraphEdgeShape*, bool>> edgesShapesInOrder;
 
 		int index{ 0 };
-		float nodeToNodeTime{ 0.5f };
 		sf::Clock clock;
 
 	public:

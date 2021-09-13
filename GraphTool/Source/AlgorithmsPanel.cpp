@@ -16,6 +16,7 @@ void AlgorithmsPanel::run()
 	ImGui::Text("Select Algorithm");
 	ImGui::Spacing();
 	const int oldSelectedAlgorithmIdx = selectedAlgorithmIdx;
+
 	if (ImGui::Selectable("Depth First Search", selectedAlgorithmIdx == 1)) {
 		selectedAlgorithm = SelectedAlgorithm::DFS;
 		selectedAlgorithmIdx = 1;

@@ -1,16 +1,17 @@
 #include "../Include/GraphNodeShape.hpp"
 #include "../Include/ResourceManager.hpp"
+#include "../Include/Constants.hpp"
 
 GraphNodeShape::GraphNodeShape(int nodeId, const sf::Vector2f& position)
 	: nodeId(nodeId)
 {	
 	// Initialize shape
-	shape.setRadius(radius);
-	shape.setOrigin({ radius, radius });
+	shape.setRadius(Constants::nodeRadius);
+	shape.setOrigin({ Constants::nodeRadius, Constants::nodeRadius });
 	shape.setPosition(position);
-	shape.setFillColor(color);
+	shape.setFillColor(Constants::mainColor);
 	shape.setOutlineColor(sf::Color::White);
-	shape.setOutlineThickness(2.f);
+	shape.setOutlineThickness(Constants::nodeOutlineThickness);
 
 	// Initialize text
 	text.setFont(ResourceManager::instance().getSFMLFont());
@@ -35,7 +36,7 @@ void GraphNodeShape::setPosition(const sf::Vector2f& newPosition)
 
 void GraphNodeShape::makeOutlineColored()
 {
-	shape.setOutlineColor(color);
+	shape.setOutlineColor(Constants::mainColor);
 }
 
 void GraphNodeShape::resetOutlineColor()

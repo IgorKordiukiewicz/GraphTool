@@ -166,6 +166,7 @@
   <ItemGroup>
     <ClInclude Include="Include\AlgorithmsPanel.hpp" />
     <ClInclude Include="Include\Application.hpp" />
+    <ClInclude Include="Include\Constants.hpp" />
     <ClInclude Include="Include\EditPanel.hpp" />
     <ClInclude Include="Include\Event.hpp" />
     <ClInclude Include="Include\Graph.hpp" />

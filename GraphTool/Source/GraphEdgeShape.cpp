@@ -156,7 +156,7 @@ void GraphEdgeShape::updateVertices()
 		sf::Vector2f result = endPosition;
 		result += offsetVec;
 		if (endNodeId != -1) {
-			return result + dirVec / dirVecLength * 16.f; // 16 is the node shape radius (TODO: make it not hardcoded)
+			return result + dirVec / dirVecLength * (Constants::nodeRadius + Constants::nodeOutlineThickness);
 		}
 		else {
 			return result;
@@ -207,7 +207,7 @@ void GraphEdgeShape::TextOpacityAnimation::deactivate()
 {
 	active = false;
 	// Reset the color to full opacity
-	parent->weightText.setFillColor({ 255, 255, 255, 255 });
+	parent->weightText.setFillColor(sf::Color::White);
 }
 
 void GraphEdgeShape::TextOpacityAnimation::update(float deltaTime)
@@ -261,7 +261,7 @@ void GraphEdgeShape::EdgeTraversalAnimation::update(float deltaTime)
 		}();
 		const float dirVecLength = sqrt(dirVec.x * dirVec.x + dirVec.y * dirVec.y);
 		const float lengthFraction = [this, &dirVecLength]() {
-			float result = (clock.getElapsedTime().asSeconds() / totalTime) * dirVecLength;
+			float result = (clock.getElapsedTime().asSeconds() / Constants::traversalAnimationTime) * dirVecLength;
 			result = std::clamp(result, 0.f, dirVecLength);
 			return result;
 		}();
@@ -270,23 +270,23 @@ void GraphEdgeShape::EdgeTraversalAnimation::update(float deltaTime)
 		// Update colored line vertices
 		coloredLineVertices.clear();
 		if (reversedDirection) {
-			coloredLineVertices.append({ parent->endPositionFixed, color });
-			coloredLineVertices.append({ parent->endPositionFixed + dirVecNormalized * lengthFraction, color });
+			coloredLineVertices.append({ parent->endPositionFixed, Constants::mainColor });
+			coloredLineVertices.append({ parent->endPositionFixed + dirVecNormalized * lengthFraction, Constants::mainColor });
 		}
 		else {
-			coloredLineVertices.append({ parent->startPositionFixed, color });
-			coloredLineVertices.append({ parent->startPositionFixed + dirVecNormalized * lengthFraction, color });
+			coloredLineVertices.append({ parent->startPositionFixed, Constants::mainColor });
+			coloredLineVertices.append({ parent->startPositionFixed + dirVecNormalized * lengthFraction, Constants::mainColor });
 		}
 
 		// Update colored head vertices
-		if (parent->directed == Directed::Yes && (clock.getElapsedTime().asSeconds() / totalTime) > 0.95f) {
+		if (parent->directed == Directed::Yes && (clock.getElapsedTime().asSeconds() / Constants::traversalAnimationTime) > 0.95f) {
 			coloredHeadVertices = parent->headVertices;
-			coloredHeadVertices[0].color = color;
-			coloredHeadVertices[1].color = color;
-			coloredHeadVertices[2].color = color;
+			coloredHeadVertices[0].color = Constants::mainColor;
+			coloredHeadVertices[1].color = Constants::mainColor;
+			coloredHeadVertices[2].color = Constants::mainColor;
 		}
 
-		if (clock.getElapsedTime().asSeconds() > totalTime) {
+		if (clock.getElapsedTime().asSeconds() > Constants::traversalAnimationTime) {
 			running = false;
 		}
 	}
