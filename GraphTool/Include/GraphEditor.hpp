@@ -33,6 +33,8 @@ public:
 	void activateTraversalOrderAnimation(const GraphAlgorithms::TraversalOrder& traversalOrder);
 	void activateTraversalOrderAnimation(const GraphAlgorithms::TraversalOrder& traversalOrder, const GraphAlgorithms::NodesColorsIdxs& nodesColorsIdxs);
 	void deactivateTraversalOrderAnimation();
+	void startLoopingTraversalOrderAnimation();
+	void stopLoopingTraversalOrderAnimation();
 
 private:
 	bool isMouseInsideGraphEditor() const;
@@ -81,14 +83,19 @@ private:
 
 		int index{ 0 };
 		sf::Clock clock;
+		bool loop{ false };
+		float loopDelay{  };
 
 	public:
 		GraphEditor* parent{ nullptr };
 
 		void activate(const GraphAlgorithms::TraversalOrder& traversalOrder);
 		void activate(const GraphAlgorithms::TraversalOrder& traversalOrder, const GraphAlgorithms::NodesColorsIdxs& nodesColorsIdxs);
+		void run();
 		void deactivate();
 		void update();
+		void startLooping();
+		void stopLooping();
 		bool isActive() const { return active; }
 	} traversalOrderAnimation;
 

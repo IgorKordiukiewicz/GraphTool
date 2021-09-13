@@ -40,6 +40,8 @@ void AlgorithmsPanel::run()
 
 	if (selectedAlgorithmIdx != oldSelectedAlgorithmIdx) {
 		graphEditor.deactivateTraversalOrderAnimation();
+		traversalOrder.reset();
+		nodesColorsIdxs.reset();
 	}
 
 	ImGui::Separator();
@@ -62,7 +64,7 @@ void AlgorithmsPanel::run()
 	}
 }
 
-void AlgorithmsPanel::selectNode(const std::vector<std::string>& nodesIds, int& outNodeIdx, const char* label)
+void AlgorithmsPanel::selectNodeCombo(const std::vector<std::string>& nodesIds, int& outNodeIdx, const char* label)
 {
 	const char* comboLabel = nodesIds.empty() ? "" : nodesIds[outNodeIdx].c_str();
 
@@ -82,41 +84,59 @@ void AlgorithmsPanel::selectNode(const std::vector<std::string>& nodesIds, int& 
 	}
 }
 
+void AlgorithmsPanel::loopAnimationCheckBox()
+{
+	bool oldLoopAnimation = loopAnimation;
+	if (ImGui::Checkbox("Loop Animation", &loopAnimation)) {
+		if (oldLoopAnimation != loopAnimation) {
+			if (loopAnimation) {
+				graphEditor.startLoopingTraversalOrderAnimation();
+			}
+			else {
+				graphEditor.startLoopingTraversalOrderAnimation();
+			}
+		}
+	}
+}
+
 void AlgorithmsPanel::showDfsOptions()
 {
 	ImGui::Text("Depth First Search");
 	const auto nodesIds = graph.getNodesIdsStrings();
-	selectNode(nodesIds, startNode);
+	selectNodeCombo(nodesIds, startNode);
 
 	if (ImGui::Button("Execute")) {
 		const auto traversalOrder = ga::dfs(graph, std::stoi(nodesIds[startNode]));
 		graphEditor.activateTraversalOrderAnimation(traversalOrder);
 	}
+	loopAnimationCheckBox();
 }
 
 void AlgorithmsPanel::showBfsOptions()
 {
 	ImGui::Text("Breadth First Search");
 	const auto nodesIds = graph.getNodesIdsStrings();
-	selectNode(nodesIds, startNode);
+	selectNodeCombo(nodesIds, startNode);
 
 	if (ImGui::Button("Execute")) {
 		const auto traversalOrder = ga::bfs(graph, std::stoi(nodesIds[startNode]));
 		graphEditor.activateTraversalOrderAnimation(traversalOrder);
 	}
+	loopAnimationCheckBox();
 }
 
 void AlgorithmsPanel::showDijkstraOptions()
 {
 	ImGui::Text("Dijkstra's Shortest Path");
 	const auto nodesIds = graph.getNodesIdsStrings();
-	selectNode(nodesIds, startNode);
-	selectNode(nodesIds, endNode, "##SelectEndNodeLabel");
+	selectNodeCombo(nodesIds, startNode);
+	selectNodeCombo(nodesIds, endNode, "##SelectEndNodeLabel");
 
 	if (ImGui::Button("Execute")) {
 		const auto traversalOrder = ga::dijkstra(graph, std::stoi(nodesIds[startNode]), std::stoi(nodesIds[endNode]));
 		graphEditor.activateTraversalOrderAnimation(traversalOrder);
 	}
+	loopAnimationCheckBox();
 }
 
 void AlgorithmsPanel::showColoringOptions()
@@ -127,6 +147,7 @@ void AlgorithmsPanel::showColoringOptions()
 		const auto [traversalOrder, nodesColorsIdxs] = ga::coloring(graph);
 		graphEditor.activateTraversalOrderAnimation(traversalOrder, nodesColorsIdxs);
 	}
+	loopAnimationCheckBox();
 }
 
 void AlgorithmsPanel::showFindIslandsOptions()
@@ -137,4 +158,5 @@ void AlgorithmsPanel::showFindIslandsOptions()
 		const auto [traversalOrder, nodesColorsIdxs] = ga::findIslands(graph);
 		graphEditor.activateTraversalOrderAnimation(traversalOrder, nodesColorsIdxs);
 	}
+	loopAnimationCheckBox();
 }

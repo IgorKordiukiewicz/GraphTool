@@ -12,7 +12,8 @@ public:
 	void run();
 
 private:
-	void selectNode(const std::vector<std::string>& nodesIds, int& outNodeIdx, const char* label = "##SelectStartNodeCombo");
+	void selectNodeCombo(const std::vector<std::string>& nodesIds, int& outNodeIdx, const char* label = "##SelectStartNodeCombo");
+	void loopAnimationCheckBox();
 	void showDfsOptions();
 	void showBfsOptions();
 	void showDijkstraOptions();
@@ -33,6 +34,11 @@ private:
 		FindIslands
 	} selectedAlgorithm{ SelectedAlgorithm::None };
 	int selectedAlgorithmIdx{ 0 };
+
+	bool loopAnimation{ false };
+
+	std::optional<GraphAlgorithms::TraversalOrder> traversalOrder;
+	std::optional<GraphAlgorithms::NodesColorsIdxs> nodesColorsIdxs;
 
 	int startNode{ 0 };
 	int endNode{ 0 };

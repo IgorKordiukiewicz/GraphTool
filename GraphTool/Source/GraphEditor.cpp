@@ -219,6 +219,16 @@ void GraphEditor::deactivateTraversalOrderAnimation()
 	traversalOrderAnimation.deactivate();
 }
 
+void GraphEditor::startLoopingTraversalOrderAnimation()
+{
+	traversalOrderAnimation.startLooping();
+}
+
+void GraphEditor::stopLoopingTraversalOrderAnimation()
+{
+	traversalOrderAnimation.stopLooping();
+}
+
 bool GraphEditor::isMouseInsideGraphEditor() const
 {
 	const sf::FloatRect graphViewRect{
@@ -404,10 +414,7 @@ void GraphEditor::TraversalOrderAnimation::activate(const GraphAlgorithms::Trave
 	}
 	
 	active = true;
-	running = true;
 	this->traversalOrder = traversalOrder;
-	clock.restart();
-	index = 0;
 
 	nodesShapesInOrder.clear();
 	for (const auto a : traversalOrder.nodeOrder) {
@@ -449,11 +456,7 @@ void GraphEditor::TraversalOrderAnimation::activate(const GraphAlgorithms::Trave
 		}
 	}
 
-	nodesShapesInOrder[index].first->makeColored(nodesShapesInOrder[index].second);
-	if (!edgesShapesInOrder.empty()) {
-		edgesShapesInOrder[index].first->activateEdgeTraversalAnimation(edgesShapesInOrder[index].second);
-	}
-	++index;
+	run();
 }
 
 void GraphEditor::TraversalOrderAnimation::activate(const GraphAlgorithms::TraversalOrder& traversalOrder, const GraphAlgorithms::NodesColorsIdxs& nodesColorsIdxs)
@@ -480,6 +483,28 @@ void GraphEditor::TraversalOrderAnimation::activate(const GraphAlgorithms::Trave
 	}
 	
 	activate(traversalOrder);
+}
+
+void GraphEditor::TraversalOrderAnimation::run()
+{
+	if (!active) {
+		return;
+	}
+
+	deactivate();
+	
+	active = true;
+	running = true;
+	clock.restart();
+	index = 0;
+
+	if (!nodesShapesInOrder.empty()) {
+		nodesShapesInOrder[index].first->makeColored(nodesShapesInOrder[index].second);
+	}
+	if (!edgesShapesInOrder.empty()) {
+		edgesShapesInOrder[index].first->activateEdgeTraversalAnimation(edgesShapesInOrder[index].second);
+	}
+	++index;
 }
 
 void GraphEditor::TraversalOrderAnimation::deactivate()
@@ -522,4 +547,20 @@ void GraphEditor::TraversalOrderAnimation::update()
 			}
 		}
 	}
+	else if (active && !running && loop && clock.getElapsedTime().asSeconds() >= Constants::traversalAnimationTime) {
+		run();
+	}
+}
+
+void GraphEditor::TraversalOrderAnimation::startLooping()
+{
+	loop = true;
+	if (active && !running) {
+		run();
+	}
+}
+
+void GraphEditor::TraversalOrderAnimation::stopLooping()
+{
+	loop = false;
 }
