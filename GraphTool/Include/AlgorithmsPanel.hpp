@@ -13,6 +13,11 @@ public:
 
 private:
 	void selectNode(const std::vector<std::string>& nodesIds, int& outNodeIdx, const char* label = "##SelectStartNodeCombo");
+	void showDfsOptions();
+	void showBfsOptions();
+	void showDijkstraOptions();
+	void showColoringOptions();
+	void showFindIslandsOptions();
 
 private:
 	Graph& graph;
@@ -24,7 +29,8 @@ private:
 		DFS,
 		BFS,
 		Dijkstra,
-		Coloring
+		Coloring,
+		FindIslands
 	} selectedAlgorithm{ SelectedAlgorithm::None };
 	int selectedAlgorithmIdx{ 0 };
 

@@ -10,7 +10,6 @@ GraphNodeShape::GraphNodeShape(int nodeId, const sf::Vector2f& position)
 	shape.setOrigin({ Constants::nodeRadius, Constants::nodeRadius });
 	shape.setPosition(position);
 	shape.setFillColor({ 255, 255, 255 });
-	shape.setOutlineThickness(Constants::nodeOutlineThickness);
 
 	// Initialize text
 	text.setFont(ResourceManager::instance().getSFMLFont());

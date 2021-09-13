@@ -158,7 +158,7 @@ void GraphEdgeShape::updateVertices()
 		sf::Vector2f result = endPosition;
 		result += offsetVec;
 		if (endNodeId != -1) {
-			return result + dirVec / dirVecLength * (Constants::nodeRadius + Constants::nodeOutlineThickness);
+			return result + dirVec / dirVecLength * Constants::nodeRadius;
 		}
 		else {
 			return result;

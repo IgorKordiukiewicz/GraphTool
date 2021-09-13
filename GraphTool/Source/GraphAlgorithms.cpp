@@ -181,10 +181,48 @@ namespace GraphAlgorithms
 	std::pair<TraversalOrder, NodesColorsIdxs> coloring(const Graph& graph)
 	{
 		TraversalOrder traversalOrder;
-		NodesColorsIdxs nodesColors;
+		NodesColorsIdxs nodesColorsIdxs;
 		
-		Impl::coloringImpl(graph, traversalOrder, nodesColors);
+		Impl::coloringImpl(graph, traversalOrder, nodesColorsIdxs);
 
-		return { traversalOrder, nodesColors };
+		return { traversalOrder, nodesColorsIdxs };
+	}
+
+	std::pair<TraversalOrder, NodesColorsIdxs> findIslands(const Graph& graph)
+	{
+		TraversalOrder traversalOrder;
+		NodesColorsIdxs nodesColorsIdxs;
+		VisitedNodes visitedNodes = Helpers::createEmptyVisitedNodesContainer(graph);
+
+		int colorIdx{ 0 };
+		for (const auto [nodeId, visited] : visitedNodes) {
+			if (!visited) {
+				TraversalOrder tempTraversalOrder;
+				Impl::dfsImpl(graph, nodeId, tempTraversalOrder, visitedNodes);
+
+				for (const auto nodeId : tempTraversalOrder.nodeOrder) {
+					nodesColorsIdxs[nodeId] = colorIdx;
+				}
+				++colorIdx;
+				traversalOrder += std::move(tempTraversalOrder);
+			}
+		}
+
+		traversalOrder.edgeOrder.clear();
+		return { traversalOrder, nodesColorsIdxs };
+	}
+
+	TraversalOrder& TraversalOrder::operator+=(const TraversalOrder& other)
+	{
+		std::copy(other.edgeOrder.begin(), other.edgeOrder.end(), std::back_inserter(edgeOrder));
+		std::copy(other.nodeOrder.begin(), other.nodeOrder.end(), std::back_inserter(nodeOrder));
+		return *this;
+	}
+
+	TraversalOrder& TraversalOrder::operator+=(TraversalOrder&& other)
+	{
+		std::move(other.edgeOrder.begin(), other.edgeOrder.end(), std::back_inserter(edgeOrder));
+		std::move(other.nodeOrder.begin(), other.nodeOrder.end(), std::back_inserter(nodeOrder));
+		return *this;
 	}
 }

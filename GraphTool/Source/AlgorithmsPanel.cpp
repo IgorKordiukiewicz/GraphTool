@@ -33,50 +33,32 @@ void AlgorithmsPanel::run()
 		selectedAlgorithm = SelectedAlgorithm::Coloring;
 		selectedAlgorithmIdx = 4;
 	}
+	if (ImGui::Selectable("Find Islands", selectedAlgorithmIdx == 5)) {
+		selectedAlgorithm = SelectedAlgorithm::FindIslands;
+		selectedAlgorithmIdx = 5;
+	}
 
 	if (selectedAlgorithmIdx != oldSelectedAlgorithmIdx) {
 		graphEditor.deactivateTraversalOrderAnimation();
 	}
 
 	ImGui::Separator();
-	if (selectedAlgorithm == SelectedAlgorithm::DFS) {
-		ImGui::Text("Depth First Search");
-		const auto nodesIds = graph.getNodesIdsStrings();
-		selectNode(nodesIds, startNode);
-
-		if (ImGui::Button("Execute")) {
-			const auto traversalOrder = ga::dfs(graph, std::stoi(nodesIds[startNode]));
-			graphEditor.activateTraversalOrderAnimation(traversalOrder);
-		}
-	}
-	else if (selectedAlgorithm == SelectedAlgorithm::BFS) {
-		ImGui::Text("Breadth First Search");
-		const auto nodesIds = graph.getNodesIdsStrings();
-		selectNode(nodesIds, startNode);
-
-		if (ImGui::Button("Execute")) {
-			const auto traversalOrder = ga::bfs(graph, std::stoi(nodesIds[startNode]));
-			graphEditor.activateTraversalOrderAnimation(traversalOrder);
-		}
-	}
-	else if (selectedAlgorithm == SelectedAlgorithm::Dijkstra) {
-		ImGui::Text("Dijkstra's Shortest Path");
-		const auto nodesIds = graph.getNodesIdsStrings();
-		selectNode(nodesIds, startNode);
-		selectNode(nodesIds, endNode, "##SelectEndNodeLabel");
-
-		if (ImGui::Button("Execute")) {
-			const auto traversalOrder = ga::dijkstra(graph, std::stoi(nodesIds[startNode]), std::stoi(nodesIds[endNode]));
-			graphEditor.activateTraversalOrderAnimation(traversalOrder);
-		}
-	}
-	else if (selectedAlgorithm == SelectedAlgorithm::Coloring) {
-		ImGui::Text("Graph Coloring");
-
-		if (ImGui::Button("Execute")) {
-			const auto[traversalOrder, nodesColorsIdxs] = ga::coloring(graph);
-			graphEditor.activateTraversalOrderAnimation(traversalOrder, nodesColorsIdxs);
-		}
+	switch (selectedAlgorithm) {
+	case SelectedAlgorithm::DFS:
+		showDfsOptions();
+		break;
+	case SelectedAlgorithm::BFS:
+		showBfsOptions();
+		break;
+	case SelectedAlgorithm::Dijkstra:
+		showDijkstraOptions();
+		break;
+	case SelectedAlgorithm::Coloring:
+		showColoringOptions();
+		break;
+	case SelectedAlgorithm::FindIslands:
+		showFindIslandsOptions();
+		break;
 	}
 }
 
@@ -97,5 +79,62 @@ void AlgorithmsPanel::selectNode(const std::vector<std::string>& nodesIds, int& 
 		}
 
 		ImGui::EndCombo();
+	}
+}
+
+void AlgorithmsPanel::showDfsOptions()
+{
+	ImGui::Text("Depth First Search");
+	const auto nodesIds = graph.getNodesIdsStrings();
+	selectNode(nodesIds, startNode);
+
+	if (ImGui::Button("Execute")) {
+		const auto traversalOrder = ga::dfs(graph, std::stoi(nodesIds[startNode]));
+		graphEditor.activateTraversalOrderAnimation(traversalOrder);
+	}
+}
+
+void AlgorithmsPanel::showBfsOptions()
+{
+	ImGui::Text("Breadth First Search");
+	const auto nodesIds = graph.getNodesIdsStrings();
+	selectNode(nodesIds, startNode);
+
+	if (ImGui::Button("Execute")) {
+		const auto traversalOrder = ga::bfs(graph, std::stoi(nodesIds[startNode]));
+		graphEditor.activateTraversalOrderAnimation(traversalOrder);
+	}
+}
+
+void AlgorithmsPanel::showDijkstraOptions()
+{
+	ImGui::Text("Dijkstra's Shortest Path");
+	const auto nodesIds = graph.getNodesIdsStrings();
+	selectNode(nodesIds, startNode);
+	selectNode(nodesIds, endNode, "##SelectEndNodeLabel");
+
+	if (ImGui::Button("Execute")) {
+		const auto traversalOrder = ga::dijkstra(graph, std::stoi(nodesIds[startNode]), std::stoi(nodesIds[endNode]));
+		graphEditor.activateTraversalOrderAnimation(traversalOrder);
+	}
+}
+
+void AlgorithmsPanel::showColoringOptions()
+{
+	ImGui::Text("Graph Coloring");
+
+	if (ImGui::Button("Execute")) {
+		const auto [traversalOrder, nodesColorsIdxs] = ga::coloring(graph);
+		graphEditor.activateTraversalOrderAnimation(traversalOrder, nodesColorsIdxs);
+	}
+}
+
+void AlgorithmsPanel::showFindIslandsOptions()
+{
+	ImGui::Text("Find Islands");
+
+	if (ImGui::Button("Execute")) {
+		const auto [traversalOrder, nodesColorsIdxs] = ga::findIslands(graph);
+		graphEditor.activateTraversalOrderAnimation(traversalOrder, nodesColorsIdxs);
 	}
 }
