@@ -10,6 +10,7 @@ namespace GraphAlgorithms
 	{
 		std::vector<std::pair<int, int>> edgeOrder;
 		std::vector<int> nodeOrder;
+		bool instant{ false };
 
 		TraversalOrder& operator+=(const TraversalOrder& other);
 		TraversalOrder& operator+=(TraversalOrder&& other);
@@ -23,4 +24,5 @@ namespace GraphAlgorithms
 	std::pair<TraversalOrder, NodesColorsIdxs> coloring(const Graph& graph);
 	std::pair<TraversalOrder, NodesColorsIdxs> findIslands(const Graph& graph);
 	TraversalOrder kruskalMST(const Graph& graph);
+	std::pair<TraversalOrder, NodesColorsIdxs> nodesDegrees(const Graph& graph);
 }

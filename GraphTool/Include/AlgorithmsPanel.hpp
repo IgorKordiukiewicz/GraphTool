@@ -21,6 +21,7 @@ private:
 	void showColoringOptions();
 	void showFindIslandsOptions();
 	void showKruskalMSTOptions();
+	void showNodesDegreesOptions();
 
 private:
 	Graph& graph;
@@ -34,7 +35,8 @@ private:
 		Dijkstra,
 		Coloring,
 		FindIslands,
-		KruskalMST
+		KruskalMST,
+		NodesDegrees,
 	} selectedAlgorithm{ SelectedAlgorithm::None };
 	int selectedAlgorithmIdx{ 0 };
 

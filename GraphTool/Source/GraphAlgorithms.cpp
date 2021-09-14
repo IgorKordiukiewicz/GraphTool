@@ -283,6 +283,27 @@ namespace GraphAlgorithms
 		return traversalOrder;
 	}
 
+	std::pair<TraversalOrder, NodesColorsIdxs> nodesDegrees(const Graph& graph)
+	{
+		TraversalOrder traversalOrder;
+		traversalOrder.instant = true;
+		NodesColorsIdxs nodesColorsIdxs;
+
+		std::map<int, int> degrees;
+		int idx{ 0 };
+		for (const auto& [nodeId, nodeConnections] : graph.getAdjacencyList()) {
+			if (degrees.insert({ static_cast<int>(nodeConnections.size()), idx }).second) {
+				++idx;
+			}
+		}
+		for (const auto& [nodeId, nodeConnections] : graph.getAdjacencyList()) {
+			traversalOrder.nodeOrder.push_back(nodeId);
+			nodesColorsIdxs.emplace(nodeId, degrees[nodeConnections.size()]);
+		}
+
+		return { traversalOrder, nodesColorsIdxs };
+	}
+
 	TraversalOrder& TraversalOrder::operator+=(const TraversalOrder& other)
 	{
 		std::copy(other.edgeOrder.begin(), other.edgeOrder.end(), std::back_inserter(edgeOrder));

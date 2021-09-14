@@ -14,7 +14,8 @@ AlgorithmsPanel::AlgorithmsPanel(Graph& graph, GraphEditor& graphEditor)
 
 void AlgorithmsPanel::run()
 {
-	ImGui::Text("Select Algorithm");
+	ImGui::Text("Select Algorithm:");
+	ImGui::Spacing();
 	ImGui::Spacing();
 	const int oldSelectedAlgorithmIdx = selectedAlgorithmIdx;
 
@@ -41,6 +42,10 @@ void AlgorithmsPanel::run()
 	if (ImGui::Selectable("Kruskal's Minimum Spanning Tree", selectedAlgorithmIdx == 6)) {
 		selectedAlgorithm = SelectedAlgorithm::KruskalMST;
 		selectedAlgorithmIdx = 6;
+	}
+	if (ImGui::Selectable("Nodes Degrees", selectedAlgorithmIdx == 7)) {
+		selectedAlgorithm = SelectedAlgorithm::NodesDegrees;
+		selectedAlgorithmIdx = 7;
 	}
 
 	if (selectedAlgorithmIdx != oldSelectedAlgorithmIdx) {
@@ -72,9 +77,12 @@ void AlgorithmsPanel::run()
 	case SelectedAlgorithm::KruskalMST:
 		showKruskalMSTOptions();
 		break;
+	case SelectedAlgorithm::NodesDegrees:
+		showNodesDegreesOptions();
+		break;
 	}
 
-	if (selectedAlgorithmIdx) {
+	if (selectedAlgorithmIdx && selectedAlgorithm != SelectedAlgorithm::NodesDegrees) {
 		ImGui::Separator();
 		loopAnimationCheckBox();
 
@@ -192,5 +200,15 @@ void AlgorithmsPanel::showKruskalMSTOptions()
 	if (ImGui::Button("Execute")) {
 		const auto traversalOrder = ga::kruskalMST(graph);
 		graphEditor.activateTraversalOrderAnimation(traversalOrder);
+	}
+}
+
+void AlgorithmsPanel::showNodesDegreesOptions()
+{
+	ImGui::Text("Nodes Degrees");
+
+	if (ImGui::Button("Execute")) {
+		const auto [traversalOrder, nodesColorsIdxs] = ga::nodesDegrees(graph);
+		graphEditor.activateTraversalOrderAnimation(traversalOrder, nodesColorsIdxs);
 	}
 }

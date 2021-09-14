@@ -39,7 +39,7 @@ namespace Animations
 			if (parent->graph.isDirected()) {
 				for (auto& edgeShape : parent->directedEdgesShapes) {
 					if (edgeShape.getStartNodeId() == a && edgeShape.getEndNodeId() == b) {
-						edgesShapesInOrder.push_back({ &edgeShape,false });
+						edgesShapesInOrder.push_back({ &edgeShape, false });
 						break;
 					}
 				}
@@ -78,7 +78,8 @@ namespace Animations
 		}();
 		const auto colors = Colors::generateColors(totalColorsCount);
 
-		// Generate nodes colors
+		nodesColors.clear();
+		// Assign colors to nodes
 		for (const auto [nodeId, colorIdx] : nodesColorsIdxs) {
 			if (colorIdx.has_value()) {
 				nodesColors.emplace(nodeId, colors[*colorIdx]);
@@ -105,13 +106,22 @@ namespace Animations
 		nodeShapeIdx = 0;
 		edgeShapeIdx = 0;
 
-		if (!nodesShapesInOrder.empty()) {
-			nodesShapesInOrder[nodeShapeIdx].first->makeColored(nodesShapesInOrder[nodeShapeIdx].second);
-			++nodeShapeIdx;
+		if (traversalOrder.instant) {
+			for (auto [nodeShape, color] : nodesShapesInOrder) {
+				nodeShape->makeColored(color);
+			}
+
+			running = false;
 		}
-		if (!edgesShapesInOrder.empty()) {
-			edgesShapesInOrder[edgeShapeIdx].first->activateEdgeTraversalAnimation(edgesShapesInOrder[edgeShapeIdx].second);
-			++edgeShapeIdx;
+		else {
+			if (!nodesShapesInOrder.empty()) {
+				nodesShapesInOrder[nodeShapeIdx].first->makeColored(nodesShapesInOrder[nodeShapeIdx].second);
+				++nodeShapeIdx;
+			}
+			if (!edgesShapesInOrder.empty()) {
+				edgesShapesInOrder[edgeShapeIdx].first->activateEdgeTraversalAnimation(edgesShapesInOrder[edgeShapeIdx].second);
+				++edgeShapeIdx;
+			}
 		}
 	}
 
@@ -131,8 +141,6 @@ namespace Animations
 		for (auto [edgeShape, reversedDirection] : edgesShapesInOrder) {
 			edgeShape->deactivateEdgeTraversalAnimation();
 		}
-
-		nodesColors.clear();
 	}
 
 	void TraversalOrderAnimation::update()
@@ -217,7 +225,7 @@ namespace Animations
 			}
 		}
 		// Looping
-		else if (active && !running && loop && clock.getElapsedTime().asSeconds() >= Settings::instance().getTraversalAnimationTime()) {
+		else if (active && !running && loop && clock.getElapsedTime().asSeconds() >= Settings::instance().getTraversalAnimationTime() && !traversalOrder.instant) {
 			run();
 		}
 	}
@@ -225,7 +233,7 @@ namespace Animations
 	void TraversalOrderAnimation::startLooping()
 	{
 		loop = true;
-		if (active && !running) {
+		if (active && !running && !traversalOrder.instant) {
 			run();
 		}
 	}
