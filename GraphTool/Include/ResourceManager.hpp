@@ -1,6 +1,7 @@
 #pragma once
 
 #include <SFML/Graphics/Font.hpp>
+#include <SFML/Graphics/Texture.hpp>
 
 struct ImFont;
 
@@ -20,6 +21,7 @@ public:
 
 	ImFont* getImGuiFont() { return imGuiFont; }
 	const sf::Font& getSFMLFont() const { return sfmlFont; }
+	const sf::Texture& getEditorBackgroundTexture() const { return editorBackgroundTexture; }
 
 private:
 	ResourceManager();
@@ -27,4 +29,5 @@ private:
 
 	ImFont* imGuiFont;
 	sf::Font sfmlFont;
+	sf::Texture editorBackgroundTexture;
 };

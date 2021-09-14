@@ -9,4 +9,6 @@ ResourceManager::ResourceManager()
 
 	// Load SFML font
 	sfmlFont.loadFromFile("Resources/consola.ttf");
+
+	editorBackgroundTexture.loadFromFile("Resources/editorBackground.png");
 }

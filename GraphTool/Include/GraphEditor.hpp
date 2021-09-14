@@ -6,6 +6,7 @@
 #include <optional>
 #include "Animations.hpp"
 #include "GraphEdgeShape.hpp"
+#include <SFML/Graphics/Sprite.hpp>
 
 enum class Panel
 {
@@ -73,7 +74,7 @@ private:
 	friend Animations::TraversalOrderAnimation;
 	Animations::TraversalOrderAnimation traversalOrderAnimation;
 
-	sf::Font font;
+	sf::Sprite background;
 
 	Graph& graph;
 	sf::RenderWindow& window;

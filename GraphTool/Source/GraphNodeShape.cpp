@@ -18,7 +18,7 @@ GraphNodeShape::GraphNodeShape(int nodeId, const sf::Vector2f& position)
 	const auto textRect = text.getLocalBounds();
 	text.setOrigin(textRect.left + textRect.width / 2.f, textRect.top + textRect.height / 2.f);
 	text.setPosition(position);
-	text.setFillColor({ 50, 50, 50 });
+	text.setFillColor({ 30, 30, 35 });
 }
 
 void GraphNodeShape::draw(sf::RenderWindow& window) const
@@ -42,5 +42,5 @@ void GraphNodeShape::makeColored(const sf::Color& color)
 void GraphNodeShape::resetColor()
 {
 	shape.setFillColor({ 255, 255, 255 });
-	text.setFillColor({ 50,50,50 });
+	text.setFillColor({ 30, 30, 35 });
 }

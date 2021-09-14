@@ -16,6 +16,8 @@ Application::Application()
 	window.setFramerateLimit(30);
 	ImGui::SFML::Init(window);
 
+	initializeImGuiStyle();
+
 	// Set window icon
 	sf::Image icon;
 	icon.loadFromFile("Resources/icon.png");
@@ -113,4 +115,38 @@ void Application::processEvents()
 			window.close();
 		}
 	}
+}
+
+void Application::initializeImGuiStyle()
+{
+	ImGuiStyle& style = ImGui::GetStyle();
+
+	auto RGB = [](int r, int g, int b, float alpha) {
+		return ImVec4(static_cast<float>(r) / 255.f, static_cast<float>(g) / 255.f, static_cast<float>(b) / 255.f, alpha);
+	};
+	
+	// Colors
+	style.Colors[ImGuiCol_WindowBg] =			RGB(20, 20, 25, 1.0f);
+	style.Colors[ImGuiCol_FrameBg] =			RGB(50, 30, 30, 0.9f);
+	style.Colors[ImGuiCol_FrameBgHovered] =		RGB(160, 70, 70, 0.8f);
+	style.Colors[ImGuiCol_FrameBgActive] =		RGB(210, 90, 90, 0.9f);
+	style.Colors[ImGuiCol_SliderGrab] =			RGB(220, 60, 60, 1.0f);
+	style.Colors[ImGuiCol_SliderGrabActive] =	RGB(220, 60, 60, 1.0f);
+	style.Colors[ImGuiCol_Separator] =			RGB(220, 60, 60, 1.0f);
+	style.Colors[ImGuiCol_Tab] =				RGB(132, 50, 50, 1.0f);
+	style.Colors[ImGuiCol_TabHovered] =			RGB(229, 104, 104, 1.0f);
+	style.Colors[ImGuiCol_TabActive] =			RGB(220, 60, 60, 1.0f);
+	style.Colors[ImGuiCol_Button] =				RGB(220, 60, 60, 1.0f);
+	style.Colors[ImGuiCol_ButtonHovered] =		RGB(229, 104, 104, 1.0f);
+	style.Colors[ImGuiCol_ButtonActive] =		RGB(217, 41, 41, 1.0f);
+	style.Colors[ImGuiCol_CheckMark] =			RGB(220, 60, 60, 1.0f);
+	style.Colors[ImGuiCol_Header] =				RGB(132, 50, 50, 1.0f);
+	style.Colors[ImGuiCol_HeaderHovered] =		RGB(220, 60, 60, 1.0f);
+	style.Colors[ImGuiCol_HeaderActive] =		RGB(217, 41, 41, 1.0f);
+	style.Colors[ImGuiCol_PopupBg] =			RGB(20, 20, 25, 0.95f);
+
+	// Rounding
+	style.FrameRounding =	3.f;
+	style.GrabRounding =	3.f;
+	style.TabRounding =		3.f;
 }

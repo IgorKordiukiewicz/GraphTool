@@ -93,7 +93,7 @@ void AlgorithmsPanel::loopAnimationCheckBox()
 				graphEditor.startLoopingTraversalOrderAnimation();
 			}
 			else {
-				graphEditor.startLoopingTraversalOrderAnimation();
+				graphEditor.stopLoopingTraversalOrderAnimation();
 			}
 		}
 	}
@@ -105,7 +105,7 @@ void AlgorithmsPanel::showDfsOptions()
 	const auto nodesIds = graph.getNodesIdsStrings();
 	selectNodeCombo(nodesIds, startNode);
 
-	if (ImGui::Button("Execute")) {
+	if (ImGui::Button("Execute") && !nodesIds.empty()) {
 		const auto traversalOrder = ga::dfs(graph, std::stoi(nodesIds[startNode]));
 		graphEditor.activateTraversalOrderAnimation(traversalOrder);
 	}
@@ -118,7 +118,7 @@ void AlgorithmsPanel::showBfsOptions()
 	const auto nodesIds = graph.getNodesIdsStrings();
 	selectNodeCombo(nodesIds, startNode);
 
-	if (ImGui::Button("Execute")) {
+	if (ImGui::Button("Execute") && !nodesIds.empty()) {
 		const auto traversalOrder = ga::bfs(graph, std::stoi(nodesIds[startNode]));
 		graphEditor.activateTraversalOrderAnimation(traversalOrder);
 	}
@@ -132,7 +132,7 @@ void AlgorithmsPanel::showDijkstraOptions()
 	selectNodeCombo(nodesIds, startNode);
 	selectNodeCombo(nodesIds, endNode, "##SelectEndNodeLabel");
 
-	if (ImGui::Button("Execute")) {
+	if (ImGui::Button("Execute") && !nodesIds.empty()) {
 		const auto traversalOrder = ga::dijkstra(graph, std::stoi(nodesIds[startNode]), std::stoi(nodesIds[endNode]));
 		graphEditor.activateTraversalOrderAnimation(traversalOrder);
 	}

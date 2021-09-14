@@ -2,13 +2,13 @@
 #include <SFML/Graphics.hpp>
 #include <iostream>
 #include "../Include/Utilities.hpp"
+#include "../Include/ResourceManager.hpp"
 
 GraphEditor::GraphEditor(Graph& graph, sf::RenderWindow& window)
 	: graph(graph), window(window)
 {
-	if (!font.loadFromFile("Resources/consola.ttf")) {
-		std::cout << "Couldn't load font from file!\n";
-	}
+	background.setTexture(ResourceManager::instance().getEditorBackgroundTexture());
+	background.setPosition({ window.getSize().x * Constants::imGuiWindowWidth, 0.f });
 
 	graph.onDirectedEdgesDeleted.connect("GraphEditor", this, &GraphEditor::onDirectedEdgesDeleted);
 	graph.onUndirectedEdgesDeleted.connect("GraphEditor", this, &GraphEditor::onUndirectedEdgesDeleted);
@@ -131,6 +131,8 @@ void GraphEditor::update(float deltaTime)
 
 void GraphEditor::draw(sf::RenderWindow& window)
 {
+	window.draw(background);
+	
 	// Draw edges
 	if (graph.isDirected()) {
 		for (const auto& edgeShape : directedEdgesShapes) {

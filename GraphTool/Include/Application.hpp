@@ -17,10 +17,11 @@ public:
 
 private:
 	void processEvents();
+	void initializeImGuiStyle();
 
 private:
 	sf::RenderWindow window;
-	const sf::Color backgroundColor{ 30, 30, 30 };
+	const sf::Color backgroundColor{ 30, 30, 35 };
 
 	Graph graph;
 	Panel currentPanel{ Panel::EditPanel };
