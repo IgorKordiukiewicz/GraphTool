@@ -81,6 +81,7 @@ void GraphEditor::processEvents(sf::Event& event)
 	// Press any mouse button or enter to stop editing edge weight
 	if (editedEdge && (event.type == sf::Event::MouseButtonPressed || (event.type == sf::Event::KeyPressed && event.key.code == sf::Keyboard::Enter))) {
 		stopEditingEdgeWeight();
+		startEditingEdgeWeightIfRequired(mousePosition);
 	}
 	else if (editedEdge && event.type == sf::Event::KeyPressed) {
 		editEdgeWeight(event);
@@ -201,7 +202,7 @@ void GraphEditor::draw(sf::RenderWindow& window)
 	if (heldEdge.has_value()) {
 		heldEdge->draw(window);
 	}
-	
+
 	// Draw nodes
 	for (const auto& nodeShape : nodesShapes) {
 		nodeShape.draw(window);

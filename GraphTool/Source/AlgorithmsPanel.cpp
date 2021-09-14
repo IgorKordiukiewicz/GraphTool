@@ -80,7 +80,7 @@ void AlgorithmsPanel::run()
 
 		float traversalAnimationTime = Animations::Settings::instance().getTraversalAnimationTime();
 		ImGui::Text("Traversal Animation Time: ");
-		ImGui::SliderFloat("##TraversalAnimationTime", &traversalAnimationTime, 0.1f, 10.f);
+		ImGui::SliderFloat("##TraversalAnimationTime", &traversalAnimationTime, 0.1f, 10.f, "%.1fs");
 		Animations::Settings::instance().setTraversalAnimationTime(traversalAnimationTime);
 	}
 

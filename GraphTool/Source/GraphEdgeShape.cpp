@@ -150,7 +150,11 @@ void GraphEdgeShape::updateVertices()
 
 	const sf::Vector2f orthDirVecNormalized{ dirVecNormalized.y * -1.f, dirVecNormalized.x };
 	const sf::Vector2f offsetVec = orthDirVecNormalized * (isOrthogonalOffsetEnabled ? orthogonalOffset : 0.f);
-	startPositionFixed = startPosition + offsetVec;
+	startPositionFixed = [this, &dirVec, &dirVecLength, &offsetVec] {
+		sf::Vector2f result = startPosition;
+		result += offsetVec;
+		return result - dirVec / dirVecLength * Constants::nodeRadius;
+	}();
 
 	// If endNodeId is equal to -1, it means that the edge is held by the user, otherwise it is attached to a node, 
 	// so the end position has to be recalculated so that the arrow head is not inside the node 

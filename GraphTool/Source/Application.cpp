@@ -51,7 +51,6 @@ void Application::run()
 		if (font) {
 			ImGui::PushFont(font);
 		}
-		//ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(ImColor(220, 60, 60)));
 
 		// Setup main imgui window
 		ImGui::Begin("Main Window", (bool*)0,
@@ -89,7 +88,6 @@ void Application::run()
 		if (font) {
 			ImGui::PopFont();
 		}
-		//ImGui::PopStyleColor(1);
 
 		ImGui::End();
 
@@ -127,24 +125,28 @@ void Application::initializeImGuiStyle()
 	};
 	
 	// Colors
-	style.Colors[ImGuiCol_WindowBg] =			RGB(20, 20, 25, 1.0f);
-	style.Colors[ImGuiCol_FrameBg] =			RGB(50, 30, 30, 0.9f);
-	style.Colors[ImGuiCol_FrameBgHovered] =		RGB(160, 70, 70, 0.8f);
-	style.Colors[ImGuiCol_FrameBgActive] =		RGB(210, 90, 90, 0.9f);
-	style.Colors[ImGuiCol_SliderGrab] =			RGB(220, 60, 60, 1.0f);
-	style.Colors[ImGuiCol_SliderGrabActive] =	RGB(220, 60, 60, 1.0f);
-	style.Colors[ImGuiCol_Separator] =			RGB(220, 60, 60, 1.0f);
-	style.Colors[ImGuiCol_Tab] =				RGB(132, 50, 50, 1.0f);
-	style.Colors[ImGuiCol_TabHovered] =			RGB(229, 104, 104, 1.0f);
-	style.Colors[ImGuiCol_TabActive] =			RGB(220, 60, 60, 1.0f);
-	style.Colors[ImGuiCol_Button] =				RGB(220, 60, 60, 1.0f);
-	style.Colors[ImGuiCol_ButtonHovered] =		RGB(229, 104, 104, 1.0f);
-	style.Colors[ImGuiCol_ButtonActive] =		RGB(217, 41, 41, 1.0f);
-	style.Colors[ImGuiCol_CheckMark] =			RGB(220, 60, 60, 1.0f);
-	style.Colors[ImGuiCol_Header] =				RGB(132, 50, 50, 1.0f);
-	style.Colors[ImGuiCol_HeaderHovered] =		RGB(220, 60, 60, 1.0f);
-	style.Colors[ImGuiCol_HeaderActive] =		RGB(217, 41, 41, 1.0f);
-	style.Colors[ImGuiCol_PopupBg] =			RGB(20, 20, 25, 0.95f);
+	style.Colors[ImGuiCol_WindowBg] =				RGB(20, 20, 25, 1.0f);
+	style.Colors[ImGuiCol_FrameBg] =				RGB(50, 30, 30, 0.9f);
+	style.Colors[ImGuiCol_FrameBgHovered] =			RGB(160, 70, 70, 0.8f);
+	style.Colors[ImGuiCol_FrameBgActive] =			RGB(210, 90, 90, 0.9f);
+	style.Colors[ImGuiCol_SliderGrab] =				RGB(220, 60, 60, 1.0f);
+	style.Colors[ImGuiCol_SliderGrabActive] =		RGB(220, 60, 60, 1.0f);
+	style.Colors[ImGuiCol_Separator] =				RGB(220, 60, 60, 1.0f);
+	style.Colors[ImGuiCol_Tab] =					RGB(132, 50, 50, 1.0f);
+	style.Colors[ImGuiCol_TabHovered] =				RGB(229, 104, 104, 1.0f);
+	style.Colors[ImGuiCol_TabActive] =				RGB(220, 60, 60, 1.0f);
+	style.Colors[ImGuiCol_Button] =					RGB(220, 60, 60, 1.0f);
+	style.Colors[ImGuiCol_ButtonHovered] =			RGB(229, 104, 104, 1.0f);
+	style.Colors[ImGuiCol_ButtonActive] =			RGB(217, 41, 41, 1.0f);
+	style.Colors[ImGuiCol_CheckMark] =				RGB(220, 60, 60, 1.0f);
+	style.Colors[ImGuiCol_Header] =					RGB(132, 50, 50, 1.0f);
+	style.Colors[ImGuiCol_HeaderHovered] =			RGB(220, 60, 60, 1.0f);
+	style.Colors[ImGuiCol_HeaderActive] =			RGB(217, 41, 41, 1.0f);
+	style.Colors[ImGuiCol_PopupBg] =				RGB(20, 20, 25, 0.95f);
+	style.Colors[ImGuiCol_ScrollbarBg] =			RGB(20, 20, 25, 0.95f);
+	style.Colors[ImGuiCol_ScrollbarGrab] =			RGB(132, 50, 50, 1.f);
+	style.Colors[ImGuiCol_ScrollbarGrabHovered] =	RGB(220, 60, 60, 1.f);
+	style.Colors[ImGuiCol_ScrollbarGrabActive] =	RGB(217, 41, 41, 1.f);
 	
 	// Rounding
 	style.FrameRounding =	4.f;
