@@ -3,6 +3,7 @@
 #include <iostream>
 #include "../Include/Utilities.hpp"
 #include "../Include/ResourceManager.hpp"
+#include <algorithm>
 
 GraphEditor::GraphEditor(Graph& graph, sf::RenderWindow& window)
 	: graph(graph), window(window)
@@ -15,6 +16,58 @@ GraphEditor::GraphEditor(Graph& graph, sf::RenderWindow& window)
 	graph.onWeightedValueChanged.connect("GraphEditor", this, &GraphEditor::onGraphWeightedValueChanged);
 
 	traversalOrderAnimation.parent = this;
+
+	// TEMP, FOR DEBUGGING
+	createNewNode({ 500, 450 });
+	createNewNode({ 700, 250 });
+	createNewNode({ 700, 650 });
+	createNewNode({ 900, 650 });
+	createNewNode({ 1100, 650 });
+	createNewNode({ 1300, 450 });
+	createNewNode({ 900, 250 });
+	createNewNode({ 900, 450 });
+	createNewNode({ 1100, 250 });
+	auto addNewEdge = [this](int a, int b) {
+		auto& nodeShapeA = *std::find_if(nodesShapes.begin(), nodesShapes.end(), [a](const auto& nodeShape) {return nodeShape.getNodeId() == a;  });
+		createNewEdge(nodeShapeA, { 0, 0 });
+		auto& nodeShapeB = *std::find_if(nodesShapes.begin(), nodesShapes.end(), [b](const auto& nodeShape) {return nodeShape.getNodeId() == b;  });
+		attachHeldEdge(nodeShapeB);
+	};
+	addNewEdge(1, 2);
+	addNewEdge(1, 3);
+	addNewEdge(2, 3);
+	addNewEdge(3, 4);
+	addNewEdge(4, 5);
+	addNewEdge(5, 6);
+	addNewEdge(2, 7);
+	addNewEdge(5, 7);
+	addNewEdge(7, 8);
+	addNewEdge(4, 8);
+	addNewEdge(3, 8);
+	addNewEdge(7, 9);
+	addNewEdge(6, 9);
+	addNewEdge(5, 9);
+	graph.makeWeighted();
+	auto setEdgeWeight = [this](int a, int b, int weight) {
+		auto& edge = *std::find_if(undirectedEdgesShapes.begin(), undirectedEdgesShapes.end(), [a, b](const auto& edgeShape) {
+			return edgeShape.getStartNodeId() == a && edgeShape.getEndNodeId() == b; });
+		edge.setWeight(weight);
+		this->graph.setEdgeWeight(a, b, weight);
+	};
+	setEdgeWeight(1, 2, 4);
+	setEdgeWeight(1, 3, 8);
+	setEdgeWeight(2, 3, 9);
+	setEdgeWeight(3, 4, 1);
+	setEdgeWeight(4, 5, 2);
+	setEdgeWeight(5, 6, 9);
+	setEdgeWeight(2, 7, 8);
+	setEdgeWeight(5, 7, 4);
+	setEdgeWeight(7, 8, 2);
+	setEdgeWeight(4, 8, 6);
+	setEdgeWeight(3, 8, 7);
+	setEdgeWeight(7, 9, 7);
+	setEdgeWeight(6, 9, 9);
+	setEdgeWeight(5, 9, 9);
 }
 
 void GraphEditor::processEvents(sf::Event& event)

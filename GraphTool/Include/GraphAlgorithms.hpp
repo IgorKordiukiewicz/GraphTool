@@ -22,4 +22,5 @@ namespace GraphAlgorithms
 	TraversalOrder dijkstra(const Graph& graph, int startNode, int endNode);
 	std::pair<TraversalOrder, NodesColorsIdxs> coloring(const Graph& graph);
 	std::pair<TraversalOrder, NodesColorsIdxs> findIslands(const Graph& graph);
+	TraversalOrder kruskalMST(const Graph& graph);
 }

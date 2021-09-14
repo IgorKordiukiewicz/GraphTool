@@ -147,6 +147,67 @@ namespace GraphAlgorithms
 				}
 			}
 		}
+
+		void kruskalMSTImpl(const Graph& graph, TraversalOrder& traversalOrder, VisitedNodes& visitedNodes)
+		{
+			std::vector<int> parent;
+			for (int i = 0; i < graph.getNodes().size() + graph.getEdges().size(); ++i) {
+				parent.push_back(i);
+			}
+
+			const auto edgesSortedByWeight = [&graph]() {
+				std::vector<Edge> edges;
+				for (const auto& edge : graph.getEdges()) {
+					edges.push_back(edge);
+				}
+				std::sort(edges.begin(), edges.end(), [](const auto& edge1, const auto& edge2) {
+					if (edge1.weight < edge2.weight) {
+						return true;
+					}
+					else if (edge1.weight > edge2.weight) {
+						return false;
+					}
+					else {
+						return edge1 < edge2;
+					}
+					});
+				return edges;
+			}();
+
+			auto getRoot = [&parent](int nodeId) {
+				while (parent[nodeId] != nodeId) {
+					parent[nodeId] = parent[parent[nodeId]];
+					nodeId = parent[nodeId];
+				}
+				return nodeId;
+			};
+
+			auto join = [&parent, &getRoot](int a, int b) {
+				const int rootA = getRoot(a);
+				const int rootB = getRoot(b);
+				parent[rootA] = rootB;
+			};
+
+			for (int i = 0; i < edgesSortedByWeight.size(); ++i) {
+				const int a = edgesSortedByWeight[i].a;
+				const int b = edgesSortedByWeight[i].b;
+				if (getRoot(a) != getRoot(b)) {
+					join(a, b);
+
+					if (!visitedNodes[a]) {
+						traversalOrder.nodeOrder.push_back(a);
+						visitedNodes[a] = true;
+					}
+					if (!visitedNodes[b]) {
+						traversalOrder.nodeOrder.push_back(b);
+						visitedNodes[b] = true;
+					}
+
+					traversalOrder.edgeOrder.push_back({ a, b });
+				}
+			}
+
+		}
 	}
 	
 	TraversalOrder dfs(const Graph& graph, int startNode)
@@ -210,6 +271,16 @@ namespace GraphAlgorithms
 
 		traversalOrder.edgeOrder.clear();
 		return { traversalOrder, nodesColorsIdxs };
+	}
+
+	TraversalOrder kruskalMST(const Graph& graph)
+	{
+		TraversalOrder traversalOrder;
+		VisitedNodes visitedNodes = Helpers::createEmptyVisitedNodesContainer(graph);
+
+		Impl::kruskalMSTImpl(graph, traversalOrder, visitedNodes);
+
+		return traversalOrder;
 	}
 
 	TraversalOrder& TraversalOrder::operator+=(const TraversalOrder& other)

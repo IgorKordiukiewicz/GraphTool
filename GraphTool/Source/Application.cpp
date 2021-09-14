@@ -63,23 +63,24 @@ void Application::run()
 		if (ImGui::BeginTabBar("MainTabBar")) {
 			// Edit panel
 			if (ImGui::BeginTabItem("Edit")) {
-				editPanel->run();
-				ImGui::EndTabItem();
-
 				if (currentPanel != Panel::EditPanel) {
 					graphEditor->setCurrentPanel(Panel::EditPanel);
 					currentPanel = Panel::EditPanel;
 				}
+
+				editPanel->run();
+				ImGui::EndTabItem();
 			}
 			// Algorithms panel
 			if (ImGui::BeginTabItem("Algorithms")) {
-				algorithmsPanel->run();
-				ImGui::EndTabItem();
-
 				if (currentPanel != Panel::AlgorithmsPanel) {
 					graphEditor->setCurrentPanel(Panel::AlgorithmsPanel);
 					currentPanel = Panel::AlgorithmsPanel;
+					algorithmsPanel->reset();
 				}
+
+				algorithmsPanel->run();
+				ImGui::EndTabItem();
 			}
 
 			ImGui::EndTabBar();
@@ -144,9 +145,9 @@ void Application::initializeImGuiStyle()
 	style.Colors[ImGuiCol_HeaderHovered] =		RGB(220, 60, 60, 1.0f);
 	style.Colors[ImGuiCol_HeaderActive] =		RGB(217, 41, 41, 1.0f);
 	style.Colors[ImGuiCol_PopupBg] =			RGB(20, 20, 25, 0.95f);
-
+	
 	// Rounding
-	style.FrameRounding =	3.f;
-	style.GrabRounding =	3.f;
-	style.TabRounding =		3.f;
+	style.FrameRounding =	4.f;
+	style.GrabRounding =	4.f;
+	style.TabRounding =		4.f;
 }

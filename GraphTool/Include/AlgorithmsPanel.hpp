@@ -10,6 +10,7 @@ public:
 	AlgorithmsPanel(Graph& graph, GraphEditor& graphEditor);
 
 	void run();
+	void reset();
 
 private:
 	void selectNodeCombo(const std::vector<std::string>& nodesIds, int& outNodeIdx, const char* label = "##SelectStartNodeCombo");
@@ -19,6 +20,7 @@ private:
 	void showDijkstraOptions();
 	void showColoringOptions();
 	void showFindIslandsOptions();
+	void showKruskalMSTOptions();
 
 private:
 	Graph& graph;
@@ -31,7 +33,8 @@ private:
 		BFS,
 		Dijkstra,
 		Coloring,
-		FindIslands
+		FindIslands,
+		KruskalMST
 	} selectedAlgorithm{ SelectedAlgorithm::None };
 	int selectedAlgorithmIdx{ 0 };
 

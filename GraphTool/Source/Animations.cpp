@@ -1,6 +1,7 @@
 #include "../Include/Animations.hpp"
 #include "../Include/GraphEditor.hpp"
 #include "../Include/GraphEdgeShape.hpp"
+#include <iostream>
 
 namespace Animations
 {
@@ -101,15 +102,17 @@ namespace Animations
 		active = true;
 		running = true;
 		clock.restart();
-		index = 0;
+		nodeShapeIdx = 0;
+		edgeShapeIdx = 0;
 
 		if (!nodesShapesInOrder.empty()) {
-			nodesShapesInOrder[index].first->makeColored(nodesShapesInOrder[index].second);
+			nodesShapesInOrder[nodeShapeIdx].first->makeColored(nodesShapesInOrder[nodeShapeIdx].second);
+			++nodeShapeIdx;
 		}
 		if (!edgesShapesInOrder.empty()) {
-			edgesShapesInOrder[index].first->activateEdgeTraversalAnimation(edgesShapesInOrder[index].second);
+			edgesShapesInOrder[edgeShapeIdx].first->activateEdgeTraversalAnimation(edgesShapesInOrder[edgeShapeIdx].second);
+			++edgeShapeIdx;
 		}
-		++index;
 	}
 
 	void TraversalOrderAnimation::deactivate()
@@ -135,24 +138,86 @@ namespace Animations
 	void TraversalOrderAnimation::update()
 	{
 		if (active && running) {
-			if (clock.getElapsedTime().asSeconds() >= Constants::traversalAnimationTime) {
-				if (index < nodesShapesInOrder.size()) {
-					nodesShapesInOrder[index].first->makeColored(nodesShapesInOrder[index].second);
-				}
-				if (index < edgesShapesInOrder.size()) {
-					edgesShapesInOrder[index].first->activateEdgeTraversalAnimation(edgesShapesInOrder[index].second);
-				}
-				++index;
-
+			if (clock.getElapsedTime().asSeconds() >= Settings::instance().getTraversalAnimationTime()) {
 				clock.restart();
 
-				// Stop animation
-				if (index == nodesShapesInOrder.size()) {
-					running = false;
+				if (!edgesShapesInOrder.empty()) {
+					if (edgeShapeIdx < edgesShapesInOrder.size()) {
+						int nodesColoredThisIteration = 0;
+						for (auto [nodeShape, color] : nodesShapesInOrder) {
+							// Color this node if its id is equal to the last shape end id
+							if (edgesShapesInOrder[edgeShapeIdx - 1].second) { // Check if direction is reversed
+								if (nodeShape->getNodeId() == edgesShapesInOrder[edgeShapeIdx - 1].first->getStartNodeId()) {
+									nodeShape->makeColored(color);
+									++nodesColoredThisIteration;
+								}
+							}
+							else {
+								if (nodeShape->getNodeId() == edgesShapesInOrder[edgeShapeIdx - 1].first->getEndNodeId()) {
+									nodeShape->makeColored(color);
+									++nodesColoredThisIteration;
+								}
+							}	
+							// Color this node if its id is equal to the current shape start id
+							if (edgesShapesInOrder[edgeShapeIdx].second) { // Check if direction is reversed
+								if (nodeShape->getNodeId() == edgesShapesInOrder[edgeShapeIdx].first->getEndNodeId()) {
+									nodeShape->makeColored(color);
+									++nodesColoredThisIteration;
+								}
+							}
+							else {
+								if (nodeShape->getNodeId() == edgesShapesInOrder[edgeShapeIdx].first->getStartNodeId()) {
+									nodeShape->makeColored(color);
+									++nodesColoredThisIteration;
+								}
+							}
+							
+							// Only 2 nodes can be colored per iteration
+							if (nodesColoredThisIteration >= 2) {
+								break;
+							}
+						}
+
+						// Activate edge traversal animation
+						edgesShapesInOrder[edgeShapeIdx].first->activateEdgeTraversalAnimation(edgesShapesInOrder[edgeShapeIdx].second);
+						++edgeShapeIdx;
+					}
+					// Color last edge's end id node
+					else if (edgeShapeIdx == edgesShapesInOrder.size()) {
+						for (auto [nodeShape, color] : nodesShapesInOrder) {
+							if (edgesShapesInOrder[edgeShapeIdx - 1].second) {
+								if (nodeShape->getNodeId() == edgesShapesInOrder[edgeShapeIdx - 1].first->getStartNodeId()) {
+									nodeShape->makeColored(color);
+									break;
+								}
+							}
+							else {
+								if (nodeShape->getNodeId() == edgesShapesInOrder[edgeShapeIdx - 1].first->getEndNodeId()) {
+									nodeShape->makeColored(color);
+									break;
+								}
+							}
+						}
+
+						running = false;
+					}
+				}
+				else {
+					// Color shape
+					if (nodeShapeIdx < nodesShapesInOrder.size()) {
+						nodesShapesInOrder[nodeShapeIdx].first->makeColored(nodesShapesInOrder[nodeShapeIdx].second);
+						++nodeShapeIdx;
+					}
+
+					// Stop animation
+					if (nodeShapeIdx == nodesShapesInOrder.size()) {
+						running = false;
+					}
 				}
 			}
 		}
-		else if (active && !running && loop && clock.getElapsedTime().asSeconds() >= Constants::traversalAnimationTime) {
+		// Looping
+		else if (active && !running && loop && clock.getElapsedTime().asSeconds() >= Settings::instance().getTraversalAnimationTime()) {
 			run();
 		}
 	}
@@ -199,7 +264,7 @@ namespace Animations
 			}();
 			const float dirVecLength = sqrt(dirVec.x * dirVec.x + dirVec.y * dirVec.y);
 			const float lengthFraction = [this, &dirVecLength]() {
-				float result = (clock.getElapsedTime().asSeconds() / Constants::traversalAnimationTime) * dirVecLength;
+				float result = (clock.getElapsedTime().asSeconds() / Settings::instance().getTraversalAnimationTime()) * dirVecLength;
 				result = std::clamp(result, 0.f, dirVecLength);
 				return result;
 			}();
@@ -217,14 +282,14 @@ namespace Animations
 			}
 
 			// Update colored head vertices
-			if (parent->directed == Directed::Yes && (clock.getElapsedTime().asSeconds() / Constants::traversalAnimationTime) > 0.95f) {
+			if (parent->directed == Directed::Yes && (clock.getElapsedTime().asSeconds() / Settings::instance().getTraversalAnimationTime()) > 0.95f) {
 				coloredHeadVertices = parent->headVertices;
 				coloredHeadVertices[0].color = Constants::mainColor;
 				coloredHeadVertices[1].color = Constants::mainColor;
 				coloredHeadVertices[2].color = Constants::mainColor;
 			}
 
-			if (clock.getElapsedTime().asSeconds() > Constants::traversalAnimationTime) {
+			if (clock.getElapsedTime().asSeconds() > Settings::instance().getTraversalAnimationTime()) {
 				running = false;
 			}
 		}

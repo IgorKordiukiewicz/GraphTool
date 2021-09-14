@@ -68,7 +68,7 @@ public:
 	Event<std::vector<std::pair<int, int>>> onUndirectedEdgesDeleted;
 	Event<> onWeightedValueChanged;
 
-	void addEdge(int a, int b, int weight = 0);
+	void addEdge(int a, int b);
 
 	void setEdgeWeight(int a, int b, int newWeight);
 	int getEdgeWeight(int a, int b) const;
@@ -91,6 +91,7 @@ public:
 
 	const AdjacencyList& getAdjacencyList() const { return isDirected() ? directedAdjList : undirectedAdjList; }
 	const std::set<Node>& getNodes() const { return nodes; }
+	const std::set<Edge>& getEdges() const { return isDirected() ? directedEdges : undirectedEdges; }
 	std::vector<std::string> getNodesIdsStrings() const;
 	
 private:

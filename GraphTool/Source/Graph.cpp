@@ -7,15 +7,15 @@ Graph::Graph()
 
 }
 
-void Graph::addEdge(int a, int b, int weight)
+void Graph::addEdge(int a, int b)
 {
 	if (!doesNodeExist(a) || !doesNodeExist(b)) {
 		return;
 	}
 
 	// Create edge
-	directedEdges.insert(Edge{ a, b, weight });
-	undirectedEdges.insert(Edge{ std::min(a, b), std::max(a, b), weight });
+	directedEdges.insert(Edge{ a, b, 0 });
+	undirectedEdges.insert(Edge{ std::min(a, b), std::max(a, b), 0 });
 
 	// Update adjacency lists
 	directedAdjList[a].insert(b);

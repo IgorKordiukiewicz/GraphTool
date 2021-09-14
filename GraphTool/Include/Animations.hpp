@@ -10,6 +10,30 @@ class GraphEdgeShape;
 
 namespace Animations
 {
+	class Settings
+	{
+	public:
+		Settings(const Settings&) = delete;
+		Settings& operator=(const Settings&) = delete;
+		Settings(Settings&&) = delete;
+		Settings& operator=(Settings&&) = delete;
+		
+		static Settings& instance()
+		{
+			static Settings instance;
+			return instance;
+		}
+
+		void setTraversalAnimationTime(float newTime) { traversalAnimationTime = newTime; }
+		float getTraversalAnimationTime() const { return traversalAnimationTime; }
+		
+	private:
+		float traversalAnimationTime{ 1.f };
+
+		Settings() = default;
+		~Settings() = default;
+	};
+	
 	class TraversalOrderAnimation
 	{
 		bool active{ false };
@@ -20,10 +44,10 @@ namespace Animations
 		// bool - true if direction of the animation should be reversed
 		std::vector<std::pair<GraphEdgeShape*, bool>> edgesShapesInOrder;
 
-		int index{ 0 };
+		int nodeShapeIdx{ 0 };
+		int edgeShapeIdx{ 0 };
 		sf::Clock clock;
 		bool loop{ false };
-		float loopDelay{  };
 
 	public:
 		GraphEditor* parent{ nullptr };

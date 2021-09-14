@@ -3,6 +3,7 @@
 #include <imgui.h>
 #include <iostream>
 #include <string>
+#include "../Include/Animations.hpp"
 
 namespace ga = GraphAlgorithms;
 
@@ -37,12 +38,19 @@ void AlgorithmsPanel::run()
 		selectedAlgorithm = SelectedAlgorithm::FindIslands;
 		selectedAlgorithmIdx = 5;
 	}
+	if (ImGui::Selectable("Kruskal's Minimum Spanning Tree", selectedAlgorithmIdx == 6)) {
+		selectedAlgorithm = SelectedAlgorithm::KruskalMST;
+		selectedAlgorithmIdx = 6;
+	}
 
 	if (selectedAlgorithmIdx != oldSelectedAlgorithmIdx) {
 		graphEditor.deactivateTraversalOrderAnimation();
 		traversalOrder.reset();
 		nodesColorsIdxs.reset();
 	}
+
+	// Take whole available width
+	ImGui::PushItemWidth(-FLT_MIN);
 
 	ImGui::Separator();
 	switch (selectedAlgorithm) {
@@ -61,7 +69,28 @@ void AlgorithmsPanel::run()
 	case SelectedAlgorithm::FindIslands:
 		showFindIslandsOptions();
 		break;
+	case SelectedAlgorithm::KruskalMST:
+		showKruskalMSTOptions();
+		break;
 	}
+
+	if (selectedAlgorithmIdx) {
+		ImGui::Separator();
+		loopAnimationCheckBox();
+
+		float traversalAnimationTime = Animations::Settings::instance().getTraversalAnimationTime();
+		ImGui::Text("Traversal Animation Time: ");
+		ImGui::SliderFloat("##TraversalAnimationTime", &traversalAnimationTime, 0.1f, 10.f);
+		Animations::Settings::instance().setTraversalAnimationTime(traversalAnimationTime);
+	}
+
+	ImGui::PopItemWidth();
+}
+
+void AlgorithmsPanel::reset()
+{
+	startNode = 0;
+	endNode = 0;
 }
 
 void AlgorithmsPanel::selectNodeCombo(const std::vector<std::string>& nodesIds, int& outNodeIdx, const char* label)
@@ -109,7 +138,6 @@ void AlgorithmsPanel::showDfsOptions()
 		const auto traversalOrder = ga::dfs(graph, std::stoi(nodesIds[startNode]));
 		graphEditor.activateTraversalOrderAnimation(traversalOrder);
 	}
-	loopAnimationCheckBox();
 }
 
 void AlgorithmsPanel::showBfsOptions()
@@ -122,7 +150,6 @@ void AlgorithmsPanel::showBfsOptions()
 		const auto traversalOrder = ga::bfs(graph, std::stoi(nodesIds[startNode]));
 		graphEditor.activateTraversalOrderAnimation(traversalOrder);
 	}
-	loopAnimationCheckBox();
 }
 
 void AlgorithmsPanel::showDijkstraOptions()
@@ -136,7 +163,6 @@ void AlgorithmsPanel::showDijkstraOptions()
 		const auto traversalOrder = ga::dijkstra(graph, std::stoi(nodesIds[startNode]), std::stoi(nodesIds[endNode]));
 		graphEditor.activateTraversalOrderAnimation(traversalOrder);
 	}
-	loopAnimationCheckBox();
 }
 
 void AlgorithmsPanel::showColoringOptions()
@@ -147,7 +173,6 @@ void AlgorithmsPanel::showColoringOptions()
 		const auto [traversalOrder, nodesColorsIdxs] = ga::coloring(graph);
 		graphEditor.activateTraversalOrderAnimation(traversalOrder, nodesColorsIdxs);
 	}
-	loopAnimationCheckBox();
 }
 
 void AlgorithmsPanel::showFindIslandsOptions()
@@ -158,5 +183,14 @@ void AlgorithmsPanel::showFindIslandsOptions()
 		const auto [traversalOrder, nodesColorsIdxs] = ga::findIslands(graph);
 		graphEditor.activateTraversalOrderAnimation(traversalOrder, nodesColorsIdxs);
 	}
-	loopAnimationCheckBox();
+}
+
+void AlgorithmsPanel::showKruskalMSTOptions()
+{
+	ImGui::Text("Kruskal's Minimum Spanning Tree");
+
+	if (ImGui::Button("Execute")) {
+		const auto traversalOrder = ga::kruskalMST(graph);
+		graphEditor.activateTraversalOrderAnimation(traversalOrder);
+	}
 }

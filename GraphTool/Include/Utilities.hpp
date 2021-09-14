@@ -9,7 +9,6 @@ namespace Constants
 	static const float nodeRadius{ 16.f };
 	// fraction of the whole application window
 	static const float imGuiWindowWidth{ 0.25f };
-	static const float traversalAnimationTime{ 1.0f }; // in seconds
 }
 
 namespace Colors
