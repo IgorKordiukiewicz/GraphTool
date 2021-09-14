@@ -249,13 +249,35 @@ void GraphEditor::stopEditingEdgeWeight()
 
 void GraphEditor::editEdgeWeight(sf::Event& event)
 {
-	// If key pressed is a number, update the edited edge's weight
-	const auto newEdgeWeight = [&event]()->std::optional<int> {
+	// Check if pressed key is a digit
+	const auto digit = [&event]()->std::optional<int> {
 		return (event.key.code >= 26 && event.key.code <= 35) ? event.key.code - 26 : std::optional<int>{};
 	}();
-	if (newEdgeWeight.has_value()) {
-		graph.setEdgeWeight(editedEdge->getStartNodeId(), editedEdge->getEndNodeId(), *newEdgeWeight);
-		editedEdge->setWeight(*newEdgeWeight);
+
+	const int currentWeight = graph.getEdgeWeight(editedEdge->getStartNodeId(), editedEdge->getEndNodeId());
+	if (digit.has_value()) {
+		const int newWeight = [this, currentWeight, &digit]() {
+			if (changedEditedEdgeWeight) {
+				if (currentWeight < 10) { // Weight can be at most a 2 digit number
+					return currentWeight * 10 + *digit;
+				}
+				else {
+					return currentWeight;
+				}
+			}
+			else {
+				return *digit;
+			}
+		}();
+		graph.setEdgeWeight(editedEdge->getStartNodeId(), editedEdge->getEndNodeId(), newWeight);
+		editedEdge->setWeight(newWeight);
+		changedEditedEdgeWeight = true;
+	}
+	else if (event.key.code == sf::Keyboard::BackSpace) {
+		const int newWeight = currentWeight / 10;
+		graph.setEdgeWeight(editedEdge->getStartNodeId(), editedEdge->getEndNodeId(), newWeight);
+		editedEdge->setWeight(newWeight);
+		changedEditedEdgeWeight = true;
 	}
 }
 
@@ -315,6 +337,8 @@ void GraphEditor::startEditingEdgeWeightIfRequired(const sf::Vector2f& mousePosi
 			if (edgeShape.getWeightText().getGlobalBounds().contains(mousePosition)) {
 				editedEdge = &edgeShape;
 				editedEdge->activateTextOpacityAnimation();
+				changedEditedEdgeWeight = false;
+
 				break;
 			}
 		}

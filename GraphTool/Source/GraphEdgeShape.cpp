@@ -59,6 +59,9 @@ void GraphEdgeShape::setEndPosition(const sf::Vector2f& newEndPosition)
 void GraphEdgeShape::setWeight(int newWeight)
 {
 	weightText.setString(std::to_string(newWeight));
+
+	const auto textRect = weightText.getLocalBounds();
+	weightText.setOrigin(textRect.left + textRect.width / 2.f, textRect.top + textRect.height / 2.f);
 }
 
 void GraphEdgeShape::activateTextOpacityAnimation()

@@ -70,6 +70,7 @@ private:
 	};
 	std::optional<HeldNodePtrs> heldNodePtrs{ std::nullopt };
 	GraphEdgeShape* editedEdge{ nullptr };
+	bool changedEditedEdgeWeight{ false };
 
 	friend Animations::TraversalOrderAnimation;
 	Animations::TraversalOrderAnimation traversalOrderAnimation;

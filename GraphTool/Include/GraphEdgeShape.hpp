@@ -69,7 +69,7 @@ private:
 	} lineBounds;
 
 	sf::Text weightText;
-	float weightTextOrthOffset = 10.f;
+	float weightTextOrthOffset = 16.f;
 
 	friend Animations::TextOpacityAnimation;
 	Animations::TextOpacityAnimation textOpacityAnimation;
