@@ -25,14 +25,19 @@ void Graph::addEdge(int a, int b)
 
 void Graph::setEdgeWeight(int a, int b, int newWeight)
 {
+	setEdgeWeight(a, b, newWeight, directed);
+}
+
+void Graph::setEdgeWeight(int a, int b, int newWeight, Directed directed)
+{
 	if (!doesNodeExist(a) || !doesNodeExist(b)) {
 		return;
 	}
-	
-	if (doesDirectedEdgeExist(a, b)) {
+
+	if (doesDirectedEdgeExist(a, b) && directed == Directed::Yes) {
 		directedEdges.find(Edge{ a, b })->weight = newWeight;
 	}
-	if (doesUndirectedEdgeExist(a, b)) {
+	else if (doesUndirectedEdgeExist(a, b) && directed == Directed::No) {
 		undirectedEdges.find(Edge{ std::min(a, b), std::max(a, b) })->weight = newWeight;
 	}
 }
@@ -61,6 +66,11 @@ int Graph::createNode()
 	Node node{ nextNodeId++ };
 	nodes.insert(std::move(node));
 	return nextNodeId - 1;
+}
+
+void Graph::setNextNodeId(int newNextNodeId)
+{
+	nextNodeId = newNextNodeId;
 }
 
 void Graph::deleteNode(int nodeId)
@@ -187,6 +197,18 @@ void Graph::deleteEdge(int a, int b)
 
 	onDirectedEdgesDeleted.emit(std::move(deletedDirectedEdges));
 	onUndirectedEdgesDeleted.emit(std::move(deletedUndirectedEdges));
+}
+
+void Graph::reset()
+{
+	directed = Directed::No;
+	weighted = Weighted::No;
+	nextNodeId = 1;
+	nodes.clear();
+	directedAdjList.clear();
+	undirectedAdjList.clear();
+	directedEdges.clear();
+	undirectedEdges.clear();
 }
 
 void Graph::makeDirected()

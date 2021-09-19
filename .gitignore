@@ -1,5 +1,6 @@
 *.png
 *.ttf
+GraphsFiles/
 
 # User-specific files
 *.rsuser

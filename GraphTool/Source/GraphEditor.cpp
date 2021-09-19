@@ -11,9 +11,10 @@ GraphEditor::GraphEditor(Graph& graph, sf::RenderWindow& window)
 	background.setTexture(ResourceManager::instance().getEditorBackgroundTexture());
 	background.setPosition({ window.getSize().x * Constants::imGuiWindowWidth, 0.f });
 
-	graph.onDirectedEdgesDeleted.connect("GraphEditor", this, &GraphEditor::onDirectedEdgesDeleted);
-	graph.onUndirectedEdgesDeleted.connect("GraphEditor", this, &GraphEditor::onUndirectedEdgesDeleted);
+	graph.onDirectedEdgesDeleted.connect("GraphEditor", this, &GraphEditor::onGraphDirectedEdgesDeleted);
+	graph.onUndirectedEdgesDeleted.connect("GraphEditor", this, &GraphEditor::onGraphUndirectedEdgesDeleted);
 	graph.onWeightedValueChanged.connect("GraphEditor", this, &GraphEditor::onGraphWeightedValueChanged);
+	graph.onLoadedFromFile.connect("GraphEditor", this, &GraphEditor::onGraphLoadedFromFile);
 
 	traversalOrderAnimation.parent = this;
 }
@@ -49,7 +50,7 @@ void GraphEditor::processEvents(sf::Event& event)
 					attachHeldEdge(nodeShape);
 				}
 				else {
-					createNewEdge(nodeShape, mousePosition);
+					createNewHeldEdge(nodeShape, mousePosition);
 				}
 
 				break;
@@ -166,48 +167,6 @@ void GraphEditor::setCurrentPanel(Panel newCurrentPanel)
 	}
 }
 
-void GraphEditor::onDirectedEdgesDeleted(std::vector<std::pair<int, int>> deletedEdges)
-{
-	for (const auto& deletedEdge : deletedEdges) {
-		directedEdgesShapes.erase(std::remove_if(directedEdgesShapes.begin(), directedEdgesShapes.end(), [&deletedEdge](const GraphEdgeShape& shape) {
-			return shape.getStartNodeId() == deletedEdge.first && shape.getEndNodeId() == deletedEdge.second;
-		}), directedEdgesShapes.end());
-	}
-}
-
-void GraphEditor::onUndirectedEdgesDeleted(std::vector<std::pair<int, int>> deletedEdges)
-{
-	for (const auto& deletedEdge : deletedEdges) {
-		undirectedEdgesShapes.erase(std::remove_if(undirectedEdgesShapes.begin(), undirectedEdgesShapes.end(), [&deletedEdge](const GraphEdgeShape& shape) {
-			return (shape.getStartNodeId() == deletedEdge.first && shape.getEndNodeId() == deletedEdge.second)
-				|| (shape.getStartNodeId() == deletedEdge.second && shape.getEndNodeId() == deletedEdge.first);
-			}), undirectedEdgesShapes.end());
-	}
-}
-
-void GraphEditor::onGraphWeightedValueChanged()
-{
-	auto updateEdgesShapes = [](auto& edgesShapes, bool makeWeighted) {
-		for (auto& edgeShape : edgesShapes) {
-			if (makeWeighted) {
-				edgeShape.makeWeighted();
-			}
-			else {
-				edgeShape.makeUnweighted();
-			}
-		}
-	};
-	
-	if (graph.isWeighted()) {
-		updateEdgesShapes(directedEdgesShapes, true);
-		updateEdgesShapes(undirectedEdgesShapes, true);
-	}
-	else {
-		updateEdgesShapes(directedEdgesShapes, false);
-		updateEdgesShapes(undirectedEdgesShapes, false);
-	}
-}
-
 void GraphEditor::activateTraversalOrderAnimation(const GraphAlgorithms::TraversalOrder& traversalOrder)
 {
 	traversalOrderAnimation.activate(traversalOrder);
@@ -287,10 +246,12 @@ void GraphEditor::attachHeldEdge(const GraphNodeShape& nodeShape)
 	if (auto [nodeA, nodeB] = std::pair{ heldEdge->getStartNodeId(), nodeShape.getNodeId() }; !graph.doesEdgeExist(nodeA, nodeB)) {
 		directedEdgesShapes.push_back(GraphEdgeShape{ heldEdge->getStartPosition(), nodeShape.getShape().getPosition(), nodeA, nodeB, Directed::Yes,
 			(graph.isWeighted() ? Weighted::Yes : Weighted::No) });
+
 		if (!graph.doesEdgeExist(nodeB, nodeA)) {
 			undirectedEdgesShapes.push_back(GraphEdgeShape{ heldEdge->getStartPosition(), nodeShape.getShape().getPosition(), nodeA, nodeB, Directed::No,
 				(graph.isWeighted() ? Weighted::Yes : Weighted::No) });
 		}
+
 		graph.addEdge(nodeA, nodeB);
 		heldEdge.reset();
 
@@ -308,7 +269,7 @@ void GraphEditor::attachHeldEdge(const GraphNodeShape& nodeShape)
 	}
 }
 
-void GraphEditor::createNewEdge(const GraphNodeShape& nodeShape, const sf::Vector2f& mousePosition)
+void GraphEditor::createNewHeldEdge(const GraphNodeShape& nodeShape, const sf::Vector2f& mousePosition)
 {
 	heldEdge = GraphEdgeShape{ nodeShape.getShape().getPosition(), mousePosition, nodeShape.getNodeId(), -1,
 						(graph.isDirected() ? Directed::Yes : Directed::No), (graph.isWeighted() ? Weighted::Yes : Weighted::No) };
@@ -328,6 +289,42 @@ void GraphEditor::createNewNode(const sf::Vector2f& mousePosition)
 			(graph.isWeighted() ? Weighted::Yes : Weighted::No) });
 		heldEdge.reset();
 	}
+}
+
+std::pair<GraphEdgeShape*, GraphEdgeShape*> GraphEditor::createNewEdge(int a, int b)
+{
+	auto& nodeShapeA = *std::find_if(nodesShapes.begin(), nodesShapes.end(), [a](const auto& nodeShape) { return nodeShape.getNodeId() == a; });
+	auto& nodeShapeB = *std::find_if(nodesShapes.begin(), nodesShapes.end(), [b](const auto& nodeShape) { return nodeShape.getNodeId() == b; });
+	GraphEdgeShape* directedEdgeShapePtr{ nullptr };
+	GraphEdgeShape* undirectedEdgeShapePtr{ nullptr };
+
+	if (!graph.doesDirectedEdgeExist(a, b)) {
+		directedEdgesShapes.push_back(GraphEdgeShape{ nodeShapeA.getShape().getPosition(), nodeShapeB.getShape().getPosition(), a, b, Directed::Yes,
+			(graph.isWeighted() ? Weighted::Yes : Weighted::No) });
+		directedEdgeShapePtr = &directedEdgesShapes.back();
+
+		if (!graph.doesUndirectedEdgeExist(a, b)) {
+			undirectedEdgesShapes.push_back(GraphEdgeShape{ nodeShapeA.getShape().getPosition(), nodeShapeB.getShape().getPosition(), a, b, Directed::No,
+				(graph.isWeighted() ? Weighted::Yes : Weighted::No) });
+			undirectedEdgeShapePtr = &undirectedEdgesShapes.back();
+		}
+
+		graph.addEdge(a, b);
+
+		// If edges is directed, and there are edges A -> B and B -> A, 
+		// set these edges shapes to use orthogonal offset to prevent them from overlapping each other
+		if (graph.doesDirectedEdgeExist(b, a)) {
+			directedEdgesShapes.back().makeOrthogonalOffsetEnabled();
+			for (auto& edgeShape : directedEdgesShapes) {
+				if (edgeShape.getStartNodeId() == b && edgeShape.getEndNodeId() == a) {
+					edgeShape.makeOrthogonalOffsetEnabled();
+					break;
+				}
+			}
+		}
+	}
+
+	return { directedEdgeShapePtr, undirectedEdgeShapePtr };
 }
 
 void GraphEditor::startEditingEdgeWeightIfRequired(const sf::Vector2f& mousePosition)
@@ -433,4 +430,50 @@ void GraphEditor::updateHeldNodePtrs()
 	else {
 		heldNodePtrs.reset();
 	}
+}
+
+void GraphEditor::onGraphDirectedEdgesDeleted(std::vector<std::pair<int, int>> deletedEdges)
+{
+	for (const auto& deletedEdge : deletedEdges) {
+		directedEdgesShapes.erase(std::remove_if(directedEdgesShapes.begin(), directedEdgesShapes.end(), [&deletedEdge](const GraphEdgeShape& shape) {
+			return shape.getStartNodeId() == deletedEdge.first && shape.getEndNodeId() == deletedEdge.second;
+			}), directedEdgesShapes.end());
+	}
+}
+
+void GraphEditor::onGraphUndirectedEdgesDeleted(std::vector<std::pair<int, int>> deletedEdges)
+{
+	for (const auto& deletedEdge : deletedEdges) {
+		undirectedEdgesShapes.erase(std::remove_if(undirectedEdgesShapes.begin(), undirectedEdgesShapes.end(), [&deletedEdge](const GraphEdgeShape& shape) {
+			return (shape.getStartNodeId() == deletedEdge.first && shape.getEndNodeId() == deletedEdge.second)
+				|| (shape.getStartNodeId() == deletedEdge.second && shape.getEndNodeId() == deletedEdge.first);
+			}), undirectedEdgesShapes.end());
+	}
+}
+
+void GraphEditor::onGraphWeightedValueChanged()
+{
+	auto updateEdgesShapes = [](auto& edgesShapes, bool makeWeighted) {
+		for (auto& edgeShape : edgesShapes) {
+			if (makeWeighted) {
+				edgeShape.makeWeighted();
+			}
+			else {
+				edgeShape.makeUnweighted();
+			}
+		}
+	};
+
+	if (graph.isWeighted()) {
+		updateEdgesShapes(directedEdgesShapes, true);
+		updateEdgesShapes(undirectedEdgesShapes, true);
+	}
+	else {
+		updateEdgesShapes(directedEdgesShapes, false);
+		updateEdgesShapes(undirectedEdgesShapes, false);
+	}
+}
+
+void GraphEditor::onGraphLoadedFromFile()
+{
 }

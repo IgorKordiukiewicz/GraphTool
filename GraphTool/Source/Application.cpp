@@ -28,7 +28,7 @@ Application::Application()
 	ImGui::SFML::UpdateFontTexture();
 
 	graphEditor = std::make_unique<GraphEditor>(graph, window);
-	editPanel = std::make_unique<EditPanel>(graph);
+	editPanel = std::make_unique<EditPanel>(graph, *graphEditor);
 	algorithmsPanel = std::make_unique<AlgorithmsPanel>(graph, *graphEditor);
 }
 

@@ -103,6 +103,8 @@ void AlgorithmsPanel::reset()
 
 void AlgorithmsPanel::selectNodeCombo(const std::vector<std::string>& nodesIds, int& outNodeIdx, const char* label)
 {
+	ImGui::Text(std::string(std::string(label) + std::string(":")).c_str());
+
 	const char* comboLabel = nodesIds.empty() ? "" : nodesIds[outNodeIdx].c_str();
 
 	if (ImGui::BeginCombo(label, comboLabel)) {
@@ -138,7 +140,6 @@ void AlgorithmsPanel::loopAnimationCheckBox()
 
 void AlgorithmsPanel::showDfsOptions()
 {
-	ImGui::Text("Depth First Search");
 	const auto nodesIds = graph.getNodesIdsStrings();
 	selectNodeCombo(nodesIds, startNode);
 
@@ -150,7 +151,6 @@ void AlgorithmsPanel::showDfsOptions()
 
 void AlgorithmsPanel::showBfsOptions()
 {
-	ImGui::Text("Breadth First Search");
 	const auto nodesIds = graph.getNodesIdsStrings();
 	selectNodeCombo(nodesIds, startNode);
 
@@ -162,10 +162,9 @@ void AlgorithmsPanel::showBfsOptions()
 
 void AlgorithmsPanel::showDijkstraOptions()
 {
-	ImGui::Text("Dijkstra's Shortest Path");
 	const auto nodesIds = graph.getNodesIdsStrings();
 	selectNodeCombo(nodesIds, startNode);
-	selectNodeCombo(nodesIds, endNode, "##SelectEndNodeLabel");
+	selectNodeCombo(nodesIds, endNode, "Target");
 
 	if (ImGui::Button("Execute") && !nodesIds.empty()) {
 		const auto traversalOrder = ga::dijkstra(graph, std::stoi(nodesIds[startNode]), std::stoi(nodesIds[endNode]));
@@ -175,8 +174,6 @@ void AlgorithmsPanel::showDijkstraOptions()
 
 void AlgorithmsPanel::showColoringOptions()
 {
-	ImGui::Text("Graph Coloring");
-
 	if (ImGui::Button("Execute")) {
 		const auto [traversalOrder, nodesColorsIdxs] = ga::coloring(graph);
 		graphEditor.activateTraversalOrderAnimation(traversalOrder, nodesColorsIdxs);
@@ -185,8 +182,6 @@ void AlgorithmsPanel::showColoringOptions()
 
 void AlgorithmsPanel::showFindIslandsOptions()
 {
-	ImGui::Text("Find Islands");
-
 	if (ImGui::Button("Execute")) {
 		const auto [traversalOrder, nodesColorsIdxs] = ga::findIslands(graph);
 		graphEditor.activateTraversalOrderAnimation(traversalOrder, nodesColorsIdxs);
@@ -195,8 +190,6 @@ void AlgorithmsPanel::showFindIslandsOptions()
 
 void AlgorithmsPanel::showKruskalMSTOptions()
 {
-	ImGui::Text("Kruskal's Minimum Spanning Tree");
-
 	if (ImGui::Button("Execute")) {
 		const auto traversalOrder = ga::kruskalMST(graph);
 		graphEditor.activateTraversalOrderAnimation(traversalOrder);
@@ -205,8 +198,6 @@ void AlgorithmsPanel::showKruskalMSTOptions()
 
 void AlgorithmsPanel::showNodesDegreesOptions()
 {
-	ImGui::Text("Nodes Degrees");
-
 	if (ImGui::Button("Execute")) {
 		const auto [traversalOrder, nodesColorsIdxs] = ga::nodesDegrees(graph);
 		graphEditor.activateTraversalOrderAnimation(traversalOrder, nodesColorsIdxs);

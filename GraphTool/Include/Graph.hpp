@@ -67,17 +67,22 @@ public:
 	Event<std::vector<std::pair<int, int>>> onDirectedEdgesDeleted;
 	Event<std::vector<std::pair<int, int>>> onUndirectedEdgesDeleted;
 	Event<> onWeightedValueChanged;
+	Event<> onLoadedFromFile;
 
 	void addEdge(int a, int b);
 
 	void setEdgeWeight(int a, int b, int newWeight);
+	void setEdgeWeight(int a, int b, int newWeight, Directed directed);
 	int getEdgeWeight(int a, int b) const;
 
 	// Creates a new node and returns id of the node
 	int createNode();
+	void setNextNodeId(int newNextNodeId);
 
 	void deleteNode(int nodeId);
 	void deleteEdge(int a, int b);
+
+	void reset();
 
 	void makeDirected();
 	void makeUndirected();
@@ -92,9 +97,10 @@ public:
 	const AdjacencyList& getAdjacencyList() const { return isDirected() ? directedAdjList : undirectedAdjList; }
 	const std::set<Node>& getNodes() const { return nodes; }
 	const std::set<Edge>& getEdges() const { return isDirected() ? directedEdges : undirectedEdges; }
+	const std::set<Edge>& getDirectedEdges() const { return directedEdges; }
+	const std::set<Edge>& getUndirectedEdges() const { return undirectedEdges; }
 	std::vector<std::string> getNodesIdsStrings() const;
 	
-private:
 	bool doesDirectedEdgeExist(int a, int b) const;
 	bool doesUndirectedEdgeExist(int a, int b) const;
 

@@ -25,9 +25,9 @@ private:
 
 	Graph graph;
 	Panel currentPanel{ Panel::EditPanel };
+	std::unique_ptr<GraphEditor> graphEditor;
 	std::unique_ptr<EditPanel> editPanel;
 	std::unique_ptr<AlgorithmsPanel> algorithmsPanel;
-	std::unique_ptr<GraphEditor> graphEditor;
 
 	struct ImFont* font{ nullptr };
 };

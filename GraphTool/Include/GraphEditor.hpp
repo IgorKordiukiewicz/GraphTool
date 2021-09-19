@@ -25,24 +25,24 @@ public:
 
 	void setCurrentPanel(Panel newCurrentPanel);
 
-	void onDirectedEdgesDeleted(std::vector<std::pair<int, int>> deletedEdges);
-	void onUndirectedEdgesDeleted(std::vector<std::pair<int, int>> deletedEdges);
-
-	void onGraphWeightedValueChanged();
-
 	void activateTraversalOrderAnimation(const GraphAlgorithms::TraversalOrder& traversalOrder);
 	void activateTraversalOrderAnimation(const GraphAlgorithms::TraversalOrder& traversalOrder, const GraphAlgorithms::NodesColorsIdxs& nodesColorsIdxs);
 	void deactivateTraversalOrderAnimation();
 	void startLoopingTraversalOrderAnimation();
 	void stopLoopingTraversalOrderAnimation();
 
+	void createNewNode(const sf::Vector2f& mousePosition);
+	// Returns pointers to the created directed edge shape and undirected edge shape
+	std::pair<GraphEdgeShape*, GraphEdgeShape*> createNewEdge(int a, int b);
+
+	const std::vector<GraphNodeShape>& getNodesShapes() const { return nodesShapes; }
+
 private:
 	bool isMouseInsideGraphEditor() const;
 	void stopEditingEdgeWeight();
 	void editEdgeWeight(sf::Event& event);
 	void attachHeldEdge(const GraphNodeShape& nodeShape);
-	void createNewEdge(const GraphNodeShape& nodeShape, const sf::Vector2f& mousePosition);
-	void createNewNode(const sf::Vector2f& mousePosition);
+	void createNewHeldEdge(const GraphNodeShape& nodeShape, const sf::Vector2f& mousePosition);
 	void startEditingEdgeWeightIfRequired(const sf::Vector2f& mousePosition);
 	// Returns true if a node was deleted and false otherwise
 	bool deleteNodeIfRequired(const sf::Vector2f& mousePosition);
@@ -50,6 +50,10 @@ private:
 	void startHoldingNode(GraphNodeShape& nodeShape);
 	void updateHeldEdge();
 	void updateHeldNodePtrs();
+	void onGraphDirectedEdgesDeleted(std::vector<std::pair<int, int>> deletedEdges);
+	void onGraphUndirectedEdgesDeleted(std::vector<std::pair<int, int>> deletedEdges);
+	void onGraphWeightedValueChanged();
+	void onGraphLoadedFromFile();
 	
 private:
 	std::vector<GraphNodeShape> nodesShapes;

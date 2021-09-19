@@ -78,7 +78,6 @@ namespace Animations
 		}();
 		const auto colors = Colors::generateColors(totalColorsCount);
 
-		nodesColors.clear();
 		// Assign colors to nodes
 		for (const auto [nodeId, colorIdx] : nodesColorsIdxs) {
 			if (colorIdx.has_value()) {
@@ -141,6 +140,8 @@ namespace Animations
 		for (auto [edgeShape, reversedDirection] : edgesShapesInOrder) {
 			edgeShape->deactivateEdgeTraversalAnimation();
 		}
+
+		nodesColors.clear();
 	}
 
 	void TraversalOrderAnimation::update()

@@ -13,7 +13,7 @@ public:
 	void reset();
 
 private:
-	void selectNodeCombo(const std::vector<std::string>& nodesIds, int& outNodeIdx, const char* label = "##SelectStartNodeCombo");
+	void selectNodeCombo(const std::vector<std::string>& nodesIds, int& outNodeIdx, const char* label = "Source");
 	void loopAnimationCheckBox();
 	void showDfsOptions();
 	void showBfsOptions();
