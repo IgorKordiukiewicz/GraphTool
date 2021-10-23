@@ -269,35 +269,3 @@ bool Graph::doesUndirectedEdgeExist(int a, int b) const
 {
 	return undirectedEdges.find({ std::min(a, b), std::max(a, b) }) != undirectedEdges.end();
 }
-
-void Graph::print() const
-{
-	auto printHelper = [](const auto& adjList) {
-		for (const auto& [key, values] : adjList) {
-			std::cout << key << ": ";
-			for (const auto& node : values) {
-				std::cout << node << " ";
-			}
-			std::cout << '\n';
-		}
-	};
-
-	std::cout << "Directed adjacency list\n";
-	printHelper(directedAdjList);
-	std::cout << "Undirected adjacency list\n";
-	printHelper(undirectedAdjList);
-}
-
-void Graph::printEdges() const
-{
-	auto printHelper = [](const auto& edges) {
-		for (const auto& edge : edges) {
-			std::cout << edge.a << " " << edge.b << "\n";
-		}
-	};
-
-	std::cout << "Directed edges\n";
-	printHelper(directedEdges);
-	std::cout << "Undirected edges\n";
-	printHelper(undirectedEdges);
-}

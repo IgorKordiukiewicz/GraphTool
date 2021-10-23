@@ -104,10 +104,6 @@ public:
 	bool doesDirectedEdgeExist(int a, int b) const;
 	bool doesUndirectedEdgeExist(int a, int b) const;
 
-public: // TEMP
-	void print() const;
-	void printEdges() const;
-
 private:
 	Directed directed{ Directed::No };
 	Weighted weighted{ Weighted::No };
