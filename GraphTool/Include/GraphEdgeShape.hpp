@@ -57,11 +57,11 @@ private:
 
 	sf::VertexArray lineVertices;
 	sf::VertexArray headVertices;
-	float headHeight = 10.f;
-	float headWidth = 11.5f;
-	float orthogonalOffset = 5.f;
+	float headHeight{ 10.f };
+	float headWidth{ 11.5f };
+	float orthogonalOffset{ 5.f };
 	bool isOrthogonalOffsetEnabled{ false };
-	struct LineBounds 
+	struct LineBounds
 	{
 		sf::Vector2f a, b, c, d;
 		float width{ 0.f };
@@ -69,7 +69,7 @@ private:
 	} lineBounds;
 
 	sf::Text weightText;
-	float weightTextOrthOffset = 16.f;
+	float weightTextOrthOffset{ 16.f };
 
 	friend Animations::TextOpacityAnimation;
 	Animations::TextOpacityAnimation textOpacityAnimation;

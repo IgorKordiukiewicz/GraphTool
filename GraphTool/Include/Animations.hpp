@@ -17,7 +17,7 @@ namespace Animations
 		Settings& operator=(const Settings&) = delete;
 		Settings(Settings&&) = delete;
 		Settings& operator=(Settings&&) = delete;
-		
+
 		static Settings& instance()
 		{
 			static Settings instance;
@@ -26,16 +26,29 @@ namespace Animations
 
 		void setTraversalAnimationTime(float newTime) { traversalAnimationTime = newTime; }
 		float getTraversalAnimationTime() const { return traversalAnimationTime; }
-		
+
 	private:
 		float traversalAnimationTime{ 1.f };
 
 		Settings() = default;
 		~Settings() = default;
 	};
-	
+
 	class TraversalOrderAnimation
 	{
+	public:
+		GraphEditor* parent{ nullptr };
+
+		void activate(const GraphAlgorithms::TraversalOrder& traversalOrder);
+		void activate(const GraphAlgorithms::TraversalOrder& traversalOrder, const GraphAlgorithms::NodesColorsIdxs& nodesColorsIdxs);
+		void run();
+		void deactivate();
+		void update();
+		void startLooping();
+		void stopLooping();
+		bool isActive() const { return active; }
+
+	private:
 		bool active{ false };
 		bool running{ false };
 		GraphAlgorithms::TraversalOrder traversalOrder;
@@ -48,28 +61,10 @@ namespace Animations
 		int edgeShapeIdx{ 0 };
 		sf::Clock clock;
 		bool loop{ false };
-
-	public:
-		GraphEditor* parent{ nullptr };
-
-		void activate(const GraphAlgorithms::TraversalOrder& traversalOrder);
-		void activate(const GraphAlgorithms::TraversalOrder& traversalOrder, const GraphAlgorithms::NodesColorsIdxs& nodesColorsIdxs);
-		void run();
-		void deactivate();
-		void update();
-		void startLooping();
-		void stopLooping();
-		bool isActive() const { return active; }
 	};
 
 	class EdgeTraversalAnimation
 	{
-		bool active{ false };
-		bool running{ false };
-		// By default animation direction will be from startPosition to endPosition
-		bool reversedDirection{ false };
-		sf::Clock clock;
-
 	public:
 		GraphEdgeShape* parent{ nullptr };
 		sf::VertexArray coloredLineVertices;
@@ -79,20 +74,28 @@ namespace Animations
 		void deactivate();
 		void update(float deltaTime);
 		bool isActive() const { return active; }
+
+	private:
+		bool active{ false };
+		bool running{ false };
+		// By default animation direction will be from startPosition to endPosition
+		bool reversedDirection{ false };
+		sf::Clock clock;
 	};
 
 	class TextOpacityAnimation
 	{
-		bool active{ false };
-		float speed{ 400.f };
-		float value{ 255.f };
-		bool isValueIncreased{ false };
-
 	public:
 		GraphEdgeShape* parent{ nullptr };
 
 		void activate();
 		void deactivate();
 		void update(float deltaTime);
+
+	private:
+		bool active{ false };
+		float speed{ 400.f };
+		float value{ 255.f };
+		bool isValueIncreased{ false };
 	};
 }

@@ -17,7 +17,7 @@ namespace GraphAlgorithms
 	};
 
 	using NodesColorsIdxs = std::map<int, std::optional<int>>;
-	
+
 	TraversalOrder dfs(const Graph& graph, int startNode);
 	TraversalOrder bfs(const Graph& graph, int startNode);
 	TraversalOrder dijkstra(const Graph& graph, int startNode, int endNode);

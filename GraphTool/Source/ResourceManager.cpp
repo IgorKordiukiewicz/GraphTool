@@ -4,7 +4,7 @@
 ResourceManager::ResourceManager()
 {
 	// Load ImGui font
-	ImGuiIO& io = ImGui::GetIO();
+	ImGuiIO& io{ ImGui::GetIO() };
 	imGuiFont = io.Fonts->AddFontFromFileTTF("Resources/consola.ttf", 14.f);
 
 	// Load SFML font

@@ -47,7 +47,7 @@ int Graph::getEdgeWeight(int a, int b) const
 	if (!doesEdgeExist(a, b)) {
 		return 0;
 	}
-	
+
 	if (isWeighted()) {
 		if (isDirected()) {
 			return directedEdges.find({ a, b })->weight;
@@ -94,7 +94,7 @@ void Graph::deleteNode(int nodeId)
 	std::vector<std::pair<int, int>> deletedUndirectedEdges;
 
 	auto deleteEdges = [nodeId](auto& edges, auto& deletedEdges) {
-		auto it = edges.begin();
+		auto it{ edges.begin() };
 		while (it != edges.end()) {
 			if (it->a == nodeId || it->b == nodeId) {
 				deletedEdges.push_back({ it->a, it->b });
@@ -106,7 +106,7 @@ void Graph::deleteNode(int nodeId)
 		}
 	};
 	deleteEdges(directedEdges, deletedDirectedEdges);
-	deleteEdges(undirectedEdges, deletedUndirectedEdges);	
+	deleteEdges(undirectedEdges, deletedUndirectedEdges);
 
 	onDirectedEdgesDeleted.emit(std::move(deletedDirectedEdges));
 	onUndirectedEdgesDeleted.emit(std::move(deletedUndirectedEdges));
@@ -121,7 +121,7 @@ void Graph::deleteEdge(int a, int b)
 	auto updateAdjList = [a, b](auto& adjList) {
 		for (auto& [id, connectedIds] : adjList) {
 			if (id == a || id == b) {
-				auto it = connectedIds.begin();
+				auto it{ connectedIds.begin() };
 				while (it != connectedIds.end()) {
 					if ((id == a && *it == b) || (id == b && *it == a)) {
 						it = connectedIds.erase(it);
@@ -135,7 +135,7 @@ void Graph::deleteEdge(int a, int b)
 	};
 
 	auto deleteEdges = [a, b](auto& edges, auto& deletedEdges) {
-		auto it = edges.begin();
+		auto it{ edges.begin() };
 		while (it != edges.end()) {
 			if ((it->a == a && it->b == b) || (it->a == b && it->b == a)) {
 				deletedEdges.push_back({ it->a, it->b });
@@ -155,7 +155,7 @@ void Graph::deleteEdge(int a, int b)
 		if (doesDirectedEdgeExist(b, a)) {
 			for (auto& [id, connectedIds] : directedAdjList) {
 				if (id == a) {
-					auto it = connectedIds.begin();
+					auto it{ connectedIds.begin() };
 					while (it != connectedIds.end()) {
 						if (*it == b) {
 							it = connectedIds.erase(it);
@@ -167,7 +167,7 @@ void Graph::deleteEdge(int a, int b)
 				}
 			}
 
-			auto it = directedEdges.begin();
+			auto it{ directedEdges.begin() };
 			while (it != directedEdges.end()) {
 				if (it->a == a && it->b == b) {
 					deletedDirectedEdges.push_back({ a, b });
@@ -254,7 +254,7 @@ bool Graph::doesEdgeExist(int a, int b) const
 std::vector<std::string> Graph::getNodesIdsStrings() const
 {
 	std::vector<std::string> result;
-	for (const auto& node : nodes) {
+	for (const Node& node : nodes) {
 		result.push_back(std::to_string(node.id));
 	}
 	return result;

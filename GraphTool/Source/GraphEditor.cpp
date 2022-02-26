@@ -14,7 +14,6 @@ GraphEditor::GraphEditor(Graph& graph, sf::RenderWindow& window)
 	graph.onDirectedEdgesDeleted.connect("GraphEditor", this, &GraphEditor::onGraphDirectedEdgesDeleted);
 	graph.onUndirectedEdgesDeleted.connect("GraphEditor", this, &GraphEditor::onGraphUndirectedEdgesDeleted);
 	graph.onWeightedValueChanged.connect("GraphEditor", this, &GraphEditor::onGraphWeightedValueChanged);
-	graph.onLoadedFromFile.connect("GraphEditor", this, &GraphEditor::onGraphLoadedFromFile);
 
 	traversalOrderAnimation.parent = this;
 }
@@ -24,8 +23,8 @@ void GraphEditor::processEvents(sf::Event& event)
 	if (currentPanel != Panel::EditPanel) {
 		return;
 	}
-	
-	const auto mousePosition = window.mapPixelToCoords({ event.mouseButton.x, event.mouseButton.y });
+
+	const sf::Vector2f mousePosition{ window.mapPixelToCoords({ event.mouseButton.x, event.mouseButton.y }) };
 
 	// Press any mouse button or enter to stop editing edge weight
 	if (editedEdge && (event.type == sf::Event::MouseButtonPressed || (event.type == sf::Event::KeyPressed && event.key.code == sf::Keyboard::Enter))) {
@@ -35,13 +34,13 @@ void GraphEditor::processEvents(sf::Event& event)
 	else if (editedEdge && event.type == sf::Event::KeyPressed) {
 		editEdgeWeight(event);
 	}
-	else if (event.type == sf::Event::MouseButtonPressed 
-		&& event.mouseButton.button == sf::Mouse::Left 
+	else if (event.type == sf::Event::MouseButtonPressed
+		&& event.mouseButton.button == sf::Mouse::Left
 		&& isMouseInsideGraphEditor()
 		&& !heldNodePtrs.has_value()) {
 		// Check if mouse is on top of any of the nodes shapes
-		bool isMouseOverNodeShape = false;
-		for (const auto& nodeShape : nodesShapes) {
+		bool isMouseOverNodeShape{ false };
+		for (const GraphNodeShape& nodeShape : nodesShapes) {
 			if (nodeShape.getShape().getGlobalBounds().contains(mousePosition)) {
 				isMouseOverNodeShape = true;
 
@@ -66,42 +65,41 @@ void GraphEditor::processEvents(sf::Event& event)
 
 			if (graph.isWeighted()) {
 				startEditingEdgeWeightIfRequired(mousePosition);
-			}	
-		}	
+			}
+		}
 	}
 	// Delete node/edge
-	else if (event.type == sf::Event::MouseButtonPressed 
-		&& event.key.code == sf::Mouse::Right 
+	else if (event.type == sf::Event::MouseButtonPressed
+		&& event.key.code == sf::Mouse::Right
 		&& isMouseInsideGraphEditor()
 		&& !heldNodePtrs.has_value()
 		&& !heldEdge.has_value()) {
-		bool wasAnyNodeDeleted = deleteNodeIfRequired(mousePosition);
-
+		const bool wasAnyNodeDeleted{ deleteNodeIfRequired(mousePosition) };
 		// If any node was deleted, then mouse was on top of a node, so it can't be on top of any edge
 		if (!wasAnyNodeDeleted) {
 			deleteEdgeIfRequired(mousePosition);
 		}
 	}
 	// Stop holding an edge
-	else if (heldEdge.has_value() && ((event.type == sf::Event::MouseButtonPressed && event.key.code == sf::Mouse::Right) 
+	else if (heldEdge.has_value() && ((event.type == sf::Event::MouseButtonPressed && event.key.code == sf::Mouse::Right)
 		|| (event.type == sf::Event::MouseButtonPressed && !isMouseInsideGraphEditor()))) {
 		heldEdge.reset();
 	}
 	// Move a node
-	else if (event.type == sf::Event::MouseButtonPressed 
-		&& event.key.code == sf::Mouse::Middle 
-		&& isMouseInsideGraphEditor() 
-		&& !heldNodePtrs.has_value() 
+	else if (event.type == sf::Event::MouseButtonPressed
+		&& event.key.code == sf::Mouse::Middle
+		&& isMouseInsideGraphEditor()
+		&& !heldNodePtrs.has_value()
 		&& !heldEdge.has_value()) {
-		for (auto& nodeShape : nodesShapes) {
+		for (GraphNodeShape& nodeShape : nodesShapes) {
 			if (nodeShape.getShape().getGlobalBounds().contains(mousePosition)) {
 				startHoldingNode(nodeShape);
 			}
 		}
 	}
 	// Stop moving the held node
-	else if (event.type == sf::Event::MouseButtonReleased 
-		&& event.key.code == sf::Mouse::Middle 
+	else if (event.type == sf::Event::MouseButtonReleased
+		&& event.key.code == sf::Mouse::Middle
 		&& heldNodePtrs.has_value()) {
 		heldNodePtrs.reset();
 	}
@@ -119,12 +117,12 @@ void GraphEditor::update(float deltaTime)
 
 	// Update edges shapes
 	if (graph.isDirected()) {
-		for (auto& edgeShape : directedEdgesShapes) {
+		for (GraphEdgeShape& edgeShape : directedEdgesShapes) {
 			edgeShape.update(deltaTime);
 		}
 	}
 	else {
-		for (auto& edgeShape : undirectedEdgesShapes) {
+		for (GraphEdgeShape& edgeShape : undirectedEdgesShapes) {
 			edgeShape.update(deltaTime);
 		}
 	}
@@ -132,18 +130,18 @@ void GraphEditor::update(float deltaTime)
 	traversalOrderAnimation.update();
 }
 
-void GraphEditor::draw(sf::RenderWindow& window)
+void GraphEditor::draw(sf::RenderWindow& window) const
 {
 	window.draw(background);
-	
+
 	// Draw edges
 	if (graph.isDirected()) {
-		for (const auto& edgeShape : directedEdgesShapes) {
+		for (const GraphEdgeShape& edgeShape : directedEdgesShapes) {
 			edgeShape.draw(window);
 		}
 	}
 	else {
-		for (const auto& edgeShape : undirectedEdgesShapes) {
+		for (const GraphEdgeShape& edgeShape : undirectedEdgesShapes) {
 			edgeShape.draw(window);
 		}
 	}
@@ -153,7 +151,7 @@ void GraphEditor::draw(sf::RenderWindow& window)
 	}
 
 	// Draw nodes
-	for (const auto& nodeShape : nodesShapes) {
+	for (const GraphNodeShape& nodeShape : nodesShapes) {
 		nodeShape.draw(window);
 	}
 }
@@ -209,11 +207,11 @@ void GraphEditor::stopEditingEdgeWeight()
 void GraphEditor::editEdgeWeight(sf::Event& event)
 {
 	// Check if pressed key is a digit
-	const auto digit = [&event]()->std::optional<int> {
+	const auto digit = [&event]() -> std::optional<int> {
 		return (event.key.code >= 26 && event.key.code <= 35) ? event.key.code - 26 : std::optional<int>{};
 	}();
 
-	const int currentWeight = graph.getEdgeWeight(editedEdge->getStartNodeId(), editedEdge->getEndNodeId());
+	const int currentWeight{ graph.getEdgeWeight(editedEdge->getStartNodeId(), editedEdge->getEndNodeId()) };
 	if (digit.has_value()) {
 		const int newWeight = [this, currentWeight, &digit]() {
 			if (changedEditedEdgeWeight) {
@@ -233,7 +231,7 @@ void GraphEditor::editEdgeWeight(sf::Event& event)
 		changedEditedEdgeWeight = true;
 	}
 	else if (event.key.code == sf::Keyboard::BackSpace) {
-		const int newWeight = currentWeight / 10;
+		const int newWeight{ currentWeight / 10 };
 		graph.setEdgeWeight(editedEdge->getStartNodeId(), editedEdge->getEndNodeId(), newWeight);
 		editedEdge->setWeight(newWeight);
 		changedEditedEdgeWeight = true;
@@ -255,11 +253,11 @@ void GraphEditor::attachHeldEdge(const GraphNodeShape& nodeShape)
 		graph.addEdge(nodeA, nodeB);
 		heldEdge.reset();
 
-		// If edges is directed, and there are edges A -> B and B -> A, 
+		// If edges is directed, and there are edges A -> B and B -> A,
 		// set these edges shapes to use orthogonal offset to prevent them from overlapping each other
 		if (graph.isDirected() && graph.doesEdgeExist(nodeB, nodeA)) {
 			directedEdgesShapes.back().makeOrthogonalOffsetEnabled();
-			for (auto& edgeShape : directedEdgesShapes) {
+			for (GraphEdgeShape& edgeShape : directedEdgesShapes) {
 				if (edgeShape.getStartNodeId() == nodeB && edgeShape.getEndNodeId() == nodeA) {
 					edgeShape.makeOrthogonalOffsetEnabled();
 					break;
@@ -277,7 +275,7 @@ void GraphEditor::createNewHeldEdge(const GraphNodeShape& nodeShape, const sf::V
 
 void GraphEditor::createNewNode(const sf::Vector2f& mousePosition)
 {
-	const int newNodeId = graph.createNode();
+	const int newNodeId{ graph.createNode() };
 	nodesShapes.push_back(GraphNodeShape{ newNodeId, mousePosition });
 
 	// If user was holding an edge, attach it to the created node
@@ -293,8 +291,8 @@ void GraphEditor::createNewNode(const sf::Vector2f& mousePosition)
 
 std::pair<GraphEdgeShape*, GraphEdgeShape*> GraphEditor::createNewEdge(int a, int b)
 {
-	auto& nodeShapeA = *std::find_if(nodesShapes.begin(), nodesShapes.end(), [a](const auto& nodeShape) { return nodeShape.getNodeId() == a; });
-	auto& nodeShapeB = *std::find_if(nodesShapes.begin(), nodesShapes.end(), [b](const auto& nodeShape) { return nodeShape.getNodeId() == b; });
+	GraphNodeShape& nodeShapeA{ *std::find_if(nodesShapes.begin(), nodesShapes.end(), [a](const auto& nodeShape) { return nodeShape.getNodeId() == a; }) };
+	GraphNodeShape& nodeShapeB{ *std::find_if(nodesShapes.begin(), nodesShapes.end(), [b](const auto& nodeShape) { return nodeShape.getNodeId() == b; }) };
 	GraphEdgeShape* directedEdgeShapePtr{ nullptr };
 	GraphEdgeShape* undirectedEdgeShapePtr{ nullptr };
 
@@ -311,11 +309,11 @@ std::pair<GraphEdgeShape*, GraphEdgeShape*> GraphEditor::createNewEdge(int a, in
 
 		graph.addEdge(a, b);
 
-		// If edges is directed, and there are edges A -> B and B -> A, 
+		// If edges is directed, and there are edges A -> B and B -> A,
 		// set these edges shapes to use orthogonal offset to prevent them from overlapping each other
 		if (graph.doesDirectedEdgeExist(b, a)) {
 			directedEdgesShapes.back().makeOrthogonalOffsetEnabled();
-			for (auto& edgeShape : directedEdgesShapes) {
+			for (GraphEdgeShape& edgeShape : directedEdgesShapes) {
 				if (edgeShape.getStartNodeId() == b && edgeShape.getEndNodeId() == a) {
 					edgeShape.makeOrthogonalOffsetEnabled();
 					break;
@@ -330,7 +328,7 @@ std::pair<GraphEdgeShape*, GraphEdgeShape*> GraphEditor::createNewEdge(int a, in
 void GraphEditor::startEditingEdgeWeightIfRequired(const sf::Vector2f& mousePosition)
 {
 	auto startEditingEdgeWeight = [this, &mousePosition](auto& edgesShapes) {
-		for (auto& edgeShape : edgesShapes) {
+		for (GraphEdgeShape& edgeShape : edgesShapes) {
 			if (edgeShape.getWeightText().getGlobalBounds().contains(mousePosition)) {
 				editedEdge = &edgeShape;
 				editedEdge->activateTextOpacityAnimation();
@@ -351,8 +349,8 @@ void GraphEditor::startEditingEdgeWeightIfRequired(const sf::Vector2f& mousePosi
 
 bool GraphEditor::deleteNodeIfRequired(const sf::Vector2f& mousePosition)
 {
-	for (auto i = nodesShapes.size(); i--;) {
-		const auto& nodeShape = nodesShapes[i];
+	for (auto i{ nodesShapes.size() }; i--;) {
+		const GraphNodeShape& nodeShape = nodesShapes[i];
 		if (nodeShape.getShape().getGlobalBounds().contains(mousePosition)) {
 			graph.deleteNode(nodeShape.getNodeId());
 			// Delete the node shapes
@@ -368,7 +366,7 @@ bool GraphEditor::deleteNodeIfRequired(const sf::Vector2f& mousePosition)
 void GraphEditor::deleteEdgeIfRequired(const sf::Vector2f& mousePosition)
 {
 	if (graph.isDirected()) {
-		for (const auto& edgeShape : directedEdgesShapes) {
+		for (const GraphEdgeShape& edgeShape : directedEdgesShapes) {
 			if (edgeShape.contains(mousePosition)) {
 				graph.deleteEdge(edgeShape.getStartNodeId(), edgeShape.getEndNodeId());
 				return;
@@ -376,7 +374,7 @@ void GraphEditor::deleteEdgeIfRequired(const sf::Vector2f& mousePosition)
 		}
 	}
 	else {
-		for (const auto& edgeShape : undirectedEdgesShapes) {
+		for (const GraphEdgeShape& edgeShape : undirectedEdgesShapes) {
 			if (edgeShape.contains(mousePosition)) {
 				graph.deleteEdge(edgeShape.getStartNodeId(), edgeShape.getEndNodeId());
 				return;
@@ -392,7 +390,7 @@ void GraphEditor::startHoldingNode(GraphNodeShape& nodeShape)
 
 	// Find edges connected to this node
 	auto findEdgesConnectedToHeldNode = [&nodeShape](auto& edgesShapes, auto& heldNodePtrs) {
-		for (auto& edgeShape : edgesShapes) {
+		for (GraphEdgeShape& edgeShape : edgesShapes) {
 			if (edgeShape.getStartNodeId() == nodeShape.getNodeId()) {
 				heldNodePtrs->connectedEdgesShapes.push_back({ &edgeShape, true });
 			}
@@ -414,7 +412,7 @@ void GraphEditor::updateHeldNodePtrs()
 {
 	if (isMouseInsideGraphEditor()) {
 		// Update held node's shape position
-		const auto mousePosition = window.mapPixelToCoords(sf::Mouse::getPosition(window));
+		const sf::Vector2f mousePosition{ window.mapPixelToCoords(sf::Mouse::getPosition(window)) };
 		heldNodePtrs->heldNodeShape->setPosition(mousePosition);
 		// Update connected edges positions
 		for (auto [edgeShape, isStartPositionAttached] : heldNodePtrs->connectedEdgesShapes) {
@@ -434,7 +432,7 @@ void GraphEditor::updateHeldNodePtrs()
 
 void GraphEditor::onGraphDirectedEdgesDeleted(std::vector<std::pair<int, int>> deletedEdges)
 {
-	for (const auto& deletedEdge : deletedEdges) {
+	for (const std::pair<int, int>& deletedEdge : deletedEdges) {
 		directedEdgesShapes.erase(std::remove_if(directedEdgesShapes.begin(), directedEdgesShapes.end(), [&deletedEdge](const GraphEdgeShape& shape) {
 			return shape.getStartNodeId() == deletedEdge.first && shape.getEndNodeId() == deletedEdge.second;
 			}), directedEdgesShapes.end());
@@ -443,7 +441,7 @@ void GraphEditor::onGraphDirectedEdgesDeleted(std::vector<std::pair<int, int>> d
 
 void GraphEditor::onGraphUndirectedEdgesDeleted(std::vector<std::pair<int, int>> deletedEdges)
 {
-	for (const auto& deletedEdge : deletedEdges) {
+	for (const std::pair<int, int>& deletedEdge : deletedEdges) {
 		undirectedEdgesShapes.erase(std::remove_if(undirectedEdgesShapes.begin(), undirectedEdgesShapes.end(), [&deletedEdge](const GraphEdgeShape& shape) {
 			return (shape.getStartNodeId() == deletedEdge.first && shape.getEndNodeId() == deletedEdge.second)
 				|| (shape.getStartNodeId() == deletedEdge.second && shape.getEndNodeId() == deletedEdge.first);
@@ -454,7 +452,7 @@ void GraphEditor::onGraphUndirectedEdgesDeleted(std::vector<std::pair<int, int>>
 void GraphEditor::onGraphWeightedValueChanged()
 {
 	auto updateEdgesShapes = [](auto& edgesShapes, bool makeWeighted) {
-		for (auto& edgeShape : edgesShapes) {
+		for (GraphEdgeShape& edgeShape : edgesShapes) {
 			if (makeWeighted) {
 				edgeShape.makeWeighted();
 			}
@@ -472,8 +470,4 @@ void GraphEditor::onGraphWeightedValueChanged()
 		updateEdgesShapes(directedEdgesShapes, false);
 		updateEdgesShapes(undirectedEdgesShapes, false);
 	}
-}
-
-void GraphEditor::onGraphLoadedFromFile()
-{
 }

@@ -9,9 +9,9 @@
 class Node
 {
 public:
-	Node(int id) 
+	Node(int id)
 		: id(id) {}
-	
+
 	const int id{ 0 };
 };
 
@@ -30,12 +30,9 @@ struct Edge
 	mutable int weight{ 0 };
 
 	Edge(int a, int b, int weight = 0)
-		: a(a), b(b), weight(weight) {}
+		: a{ a }, b{ b }, weight{ weight } {}
 
-	Edge() {}
-
-	Edge(const Edge&) = default;
-	Edge& operator=(const Edge&) = default;
+	Edge() = default;
 };
 
 inline bool operator<(const Edge& lhs, const Edge& rhs) { return lhs.a < rhs.a || (!(rhs.a < lhs.a) && lhs.b < rhs.b); }
@@ -53,7 +50,7 @@ enum class Directed
 
 enum class Weighted
 {
-	Yes, 
+	Yes,
 	No
 };
 
@@ -100,7 +97,7 @@ public:
 	const std::set<Edge>& getDirectedEdges() const { return directedEdges; }
 	const std::set<Edge>& getUndirectedEdges() const { return undirectedEdges; }
 	std::vector<std::string> getNodesIdsStrings() const;
-	
+
 	bool doesDirectedEdgeExist(int a, int b) const;
 	bool doesUndirectedEdgeExist(int a, int b) const;
 

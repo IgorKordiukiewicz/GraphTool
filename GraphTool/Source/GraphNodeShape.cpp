@@ -4,7 +4,7 @@
 
 GraphNodeShape::GraphNodeShape(int nodeId, const sf::Vector2f& position)
 	: nodeId(nodeId)
-{	
+{
 	// Initialize shape
 	shape.setRadius(Constants::nodeRadius);
 	shape.setOrigin({ Constants::nodeRadius, Constants::nodeRadius });
@@ -15,7 +15,7 @@ GraphNodeShape::GraphNodeShape(int nodeId, const sf::Vector2f& position)
 	text.setFont(ResourceManager::instance().getSFMLFont());
 	text.setCharacterSize(24);
 	text.setString(std::to_string(nodeId));
-	const auto textRect = text.getLocalBounds();
+	const sf::FloatRect textRect{ text.getLocalBounds() };
 	text.setOrigin(textRect.left + textRect.width / 2.f, textRect.top + textRect.height / 2.f);
 	text.setPosition(position);
 	text.setFillColor({ 30, 30, 35 });

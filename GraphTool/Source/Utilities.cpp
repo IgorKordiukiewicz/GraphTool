@@ -19,7 +19,7 @@ namespace Colors
 		float saturation{ 0.f };
 		float lightness{ 0.f };
 	};
-	
+
 	std::vector<sf::Color> Colors::generateColors(int count)
 	{
 		// color count has to be >= 1, subtract 1 because the first color will always be the Constants::mainColor
@@ -28,9 +28,9 @@ namespace Colors
 		std::vector<sf::Color> result{ Constants::mainColor };
 
 		HslColor mainColorHsl(Constants::mainColor);
-		const float hueStep = 1.0f / (count + 1);
+		const float hueStep{ 1.0f / (count + 1) };
 		auto currentColor = mainColorHsl;
-		for (int i = 0; i < count; ++i) {
+		for (int i{ 0 }; i < count; ++i) {
 			mainColorHsl.setHue(mainColorHsl.getHue() + hueStep);
 			if (mainColorHsl.getHue() >= 1.0f) {
 				mainColorHsl.setHue(1.0f - mainColorHsl.getHue());
@@ -43,13 +43,13 @@ namespace Colors
 
 	HslColor::HslColor(const sf::Color& rgbColor)
 	{
-		const float r = static_cast<float>(rgbColor.r) / 255.f;
-		const float g = static_cast<float>(rgbColor.g) / 255.f;
-		const float b = static_cast<float>(rgbColor.b) / 255.f;
+		const float r{ static_cast<float>(rgbColor.r) / 255.f };
+		const float g{ static_cast<float>(rgbColor.g) / 255.f };
+		const float b{ static_cast<float>(rgbColor.b) / 255.f };
 
-		const float min = std::min({ r, g, b });
-		const float max = std::max({ r, g, b });
-		const float delta = max - min;
+		const float min{ std::min({ r, g, b }) };
+		const float max{ std::max({ r, g, b }) };
+		const float delta{ max - min };
 
 		lightness = (max + min) / 2.f;
 
@@ -89,8 +89,8 @@ namespace Colors
 			r = g = b = static_cast<int>(lightness * 255.f);
 		}
 		else {
-			float v2 = lightness < 0.5f ? (lightness * (1.f + saturation)) : ((lightness + saturation) - (lightness * saturation));
-			float v1 = 2.f * lightness - v2;
+			const float v2{ lightness < 0.5f ? (lightness * (1.f + saturation)) : ((lightness + saturation) - (lightness * saturation)) };
+			const float v1{ 2.f * lightness - v2 };
 
 			auto hueToRgb = [v1, v2](float vH) {
 				vH = vH < 0.f ? vH + 1.f : (vH > 1.f ? vH - 1.f : vH);

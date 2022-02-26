@@ -10,7 +10,7 @@ namespace Animations
 		if (!parent) {
 			return;
 		}
-		
+
 		if (active) {
 			deactivate();
 		}
@@ -19,8 +19,8 @@ namespace Animations
 		this->traversalOrder = traversalOrder;
 
 		nodesShapesInOrder.clear();
-		for (const auto a : traversalOrder.nodeOrder) {
-			for (auto& nodeShape : parent->nodesShapes) {
+		for (const int a : traversalOrder.nodeOrder) {
+			for (GraphNodeShape& nodeShape : parent->nodesShapes) {
 				if (nodeShape.getNodeId() == a) {
 					if (nodesColors.empty()) {
 						nodesShapesInOrder.push_back({ &nodeShape, Constants::mainColor });
@@ -37,7 +37,7 @@ namespace Animations
 
 		for (const auto [a, b] : traversalOrder.edgeOrder) {
 			if (parent->graph.isDirected()) {
-				for (auto& edgeShape : parent->directedEdgesShapes) {
+				for (GraphEdgeShape& edgeShape : parent->directedEdgesShapes) {
 					if (edgeShape.getStartNodeId() == a && edgeShape.getEndNodeId() == b) {
 						edgesShapesInOrder.push_back({ &edgeShape, false });
 						break;
@@ -45,7 +45,7 @@ namespace Animations
 				}
 			}
 			else {
-				for (auto& edgeShape : parent->undirectedEdgesShapes) {
+				for (GraphEdgeShape& edgeShape : parent->undirectedEdgesShapes) {
 					if (edgeShape.getStartNodeId() == a && edgeShape.getEndNodeId() == b) {
 						edgesShapesInOrder.push_back({ &edgeShape, false });
 						break;
@@ -66,7 +66,7 @@ namespace Animations
 		if (!parent) {
 			return;
 		}
-		
+
 		const int totalColorsCount = [&nodesColorsIdxs]() {
 			std::set<int> colorsIdxs;
 			for (const auto [nodeId, colorIdx] : nodesColorsIdxs) {
@@ -76,7 +76,7 @@ namespace Animations
 			}
 			return colorsIdxs.size();
 		}();
-		const auto colors = Colors::generateColors(totalColorsCount);
+		const auto colors{ Colors::generateColors(totalColorsCount) };
 
 		// Assign colors to nodes
 		for (const auto [nodeId, colorIdx] : nodesColorsIdxs) {
@@ -152,7 +152,7 @@ namespace Animations
 
 				if (!edgesShapesInOrder.empty()) {
 					if (edgeShapeIdx < edgesShapesInOrder.size()) {
-						int nodesColoredThisIteration = 0;
+						int nodesColoredThisIteration{ 0 };
 						for (auto [nodeShape, color] : nodesShapesInOrder) {
 							// Color this node if its id is equal to the last shape end id
 							if (edgesShapesInOrder[edgeShapeIdx - 1].second) { // Check if direction is reversed
@@ -166,7 +166,7 @@ namespace Animations
 									nodeShape->makeColored(color);
 									++nodesColoredThisIteration;
 								}
-							}	
+							}
 							// Color this node if its id is equal to the current shape start id
 							if (edgesShapesInOrder[edgeShapeIdx].second) { // Check if direction is reversed
 								if (nodeShape->getNodeId() == edgesShapesInOrder[edgeShapeIdx].first->getEndNodeId()) {
@@ -180,7 +180,7 @@ namespace Animations
 									++nodesColoredThisIteration;
 								}
 							}
-							
+
 							// Only 2 nodes can be colored per iteration
 							if (nodesColoredThisIteration >= 2) {
 								break;
@@ -271,13 +271,13 @@ namespace Animations
 					return parent->endPositionFixed - parent->startPositionFixed;
 				}
 			}();
-			const float dirVecLength = sqrt(dirVec.x * dirVec.x + dirVec.y * dirVec.y);
+			const float dirVecLength{ sqrt(dirVec.x * dirVec.x + dirVec.y * dirVec.y) };
 			const float lengthFraction = [this, &dirVecLength]() {
-				float result = (clock.getElapsedTime().asSeconds() / Settings::instance().getTraversalAnimationTime()) * dirVecLength;
+				float result{ (clock.getElapsedTime().asSeconds() / Settings::instance().getTraversalAnimationTime()) * dirVecLength };
 				result = std::clamp(result, 0.f, dirVecLength);
 				return result;
 			}();
-			const sf::Vector2f dirVecNormalized = dirVec / dirVecLength;
+			const sf::Vector2f dirVecNormalized{ dirVec / dirVecLength };
 
 			// Update colored line vertices
 			coloredLineVertices.clear();

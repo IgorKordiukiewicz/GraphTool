@@ -37,7 +37,7 @@ void Application::run()
 	sf::Clock clock;
 
 	while (window.isOpen()) {
-		const float deltaTime = clock.restart().asSeconds();
+		const float deltaTime{ clock.restart().asSeconds() };
 
 		processEvents();
 
@@ -118,12 +118,12 @@ void Application::processEvents()
 
 void Application::initializeImGuiStyle()
 {
-	ImGuiStyle& style = ImGui::GetStyle();
+	ImGuiStyle& style{ ImGui::GetStyle() };
 
 	auto RGB = [](int r, int g, int b, float alpha) {
 		return ImVec4(static_cast<float>(r) / 255.f, static_cast<float>(g) / 255.f, static_cast<float>(b) / 255.f, alpha);
 	};
-	
+
 	// Colors
 	style.Colors[ImGuiCol_WindowBg] =				RGB(20, 20, 25, 1.0f);
 	style.Colors[ImGuiCol_FrameBg] =				RGB(50, 30, 30, 0.9f);
@@ -147,7 +147,7 @@ void Application::initializeImGuiStyle()
 	style.Colors[ImGuiCol_ScrollbarGrab] =			RGB(132, 50, 50, 1.f);
 	style.Colors[ImGuiCol_ScrollbarGrabHovered] =	RGB(220, 60, 60, 1.f);
 	style.Colors[ImGuiCol_ScrollbarGrabActive] =	RGB(217, 41, 41, 1.f);
-	
+
 	// Rounding
 	style.FrameRounding =	4.f;
 	style.GrabRounding =	4.f;

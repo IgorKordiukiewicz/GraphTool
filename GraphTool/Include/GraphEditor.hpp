@@ -21,7 +21,7 @@ public:
 
 	void processEvents(sf::Event& event);
 	void update(float deltaTime);
-	void draw(sf::RenderWindow& window);
+	void draw(sf::RenderWindow& window) const;
 
 	void setCurrentPanel(Panel newCurrentPanel);
 
@@ -53,8 +53,7 @@ private:
 	void onGraphDirectedEdgesDeleted(std::vector<std::pair<int, int>> deletedEdges);
 	void onGraphUndirectedEdgesDeleted(std::vector<std::pair<int, int>> deletedEdges);
 	void onGraphWeightedValueChanged();
-	void onGraphLoadedFromFile();
-	
+
 private:
 	std::vector<GraphNodeShape> nodesShapes;
 	std::vector<GraphEdgeShape> directedEdgesShapes;

@@ -17,7 +17,7 @@ void AlgorithmsPanel::run()
 	ImGui::Text("Select Algorithm:");
 	ImGui::Spacing();
 	ImGui::Spacing();
-	const int oldSelectedAlgorithmIdx = selectedAlgorithmIdx;
+	const int oldSelectedAlgorithmIdx{ selectedAlgorithmIdx };
 
 	if (ImGui::Selectable("Depth First Search", selectedAlgorithmIdx == 1)) {
 		selectedAlgorithm = SelectedAlgorithm::DFS;
@@ -86,7 +86,7 @@ void AlgorithmsPanel::run()
 		ImGui::Separator();
 		loopAnimationCheckBox();
 
-		float traversalAnimationTime = Animations::Settings::instance().getTraversalAnimationTime();
+		float traversalAnimationTime{ Animations::Settings::instance().getTraversalAnimationTime() };
 		ImGui::Text("Traversal Animation Time: ");
 		ImGui::SliderFloat("##TraversalAnimationTime", &traversalAnimationTime, 0.1f, 10.f, "%.1fs");
 		Animations::Settings::instance().setTraversalAnimationTime(traversalAnimationTime);
@@ -105,11 +105,11 @@ void AlgorithmsPanel::selectNodeCombo(const std::vector<std::string>& nodesIds, 
 {
 	ImGui::Text(std::string(std::string(label) + std::string(":")).c_str());
 
-	const char* comboLabel = nodesIds.empty() ? "" : nodesIds[outNodeIdx].c_str();
+	const char* comboLabel{ nodesIds.empty() ? "" : nodesIds[outNodeIdx].c_str() };
 
 	if (ImGui::BeginCombo(label, comboLabel)) {
-		for (int i = 0; i < nodesIds.size(); ++i) {
-			bool isSelected = (outNodeIdx == i);
+		for (int i{ 0 }; i < nodesIds.size(); ++i) {
+			bool isSelected{ (outNodeIdx == i) };
 			if (ImGui::Selectable(nodesIds[i].c_str(), isSelected)) {
 				outNodeIdx = i;
 			}
@@ -125,7 +125,7 @@ void AlgorithmsPanel::selectNodeCombo(const std::vector<std::string>& nodesIds, 
 
 void AlgorithmsPanel::loopAnimationCheckBox()
 {
-	bool oldLoopAnimation = loopAnimation;
+	bool oldLoopAnimation{ loopAnimation };
 	if (ImGui::Checkbox("Loop Animation", &loopAnimation)) {
 		if (oldLoopAnimation != loopAnimation) {
 			if (loopAnimation) {
@@ -140,34 +140,34 @@ void AlgorithmsPanel::loopAnimationCheckBox()
 
 void AlgorithmsPanel::showDfsOptions()
 {
-	const auto nodesIds = graph.getNodesIdsStrings();
+	const auto nodesIds{ graph.getNodesIdsStrings() };
 	selectNodeCombo(nodesIds, startNode);
 
 	if (ImGui::Button("Execute") && !nodesIds.empty()) {
-		const auto traversalOrder = ga::dfs(graph, std::stoi(nodesIds[startNode]));
+		const auto traversalOrder{ ga::dfs(graph, std::stoi(nodesIds[startNode])) };
 		graphEditor.activateTraversalOrderAnimation(traversalOrder);
 	}
 }
 
 void AlgorithmsPanel::showBfsOptions()
 {
-	const auto nodesIds = graph.getNodesIdsStrings();
+	const auto nodesIds{ graph.getNodesIdsStrings() };
 	selectNodeCombo(nodesIds, startNode);
 
 	if (ImGui::Button("Execute") && !nodesIds.empty()) {
-		const auto traversalOrder = ga::bfs(graph, std::stoi(nodesIds[startNode]));
+		const auto traversalOrder{ ga::bfs(graph, std::stoi(nodesIds[startNode])) };
 		graphEditor.activateTraversalOrderAnimation(traversalOrder);
 	}
 }
 
 void AlgorithmsPanel::showDijkstraOptions()
 {
-	const auto nodesIds = graph.getNodesIdsStrings();
+	const auto nodesIds{ graph.getNodesIdsStrings() };
 	selectNodeCombo(nodesIds, startNode);
 	selectNodeCombo(nodesIds, endNode, "Target");
 
 	if (ImGui::Button("Execute") && !nodesIds.empty()) {
-		const auto traversalOrder = ga::dijkstra(graph, std::stoi(nodesIds[startNode]), std::stoi(nodesIds[endNode]));
+		const auto traversalOrder{ ga::dijkstra(graph, std::stoi(nodesIds[startNode]), std::stoi(nodesIds[endNode])) };
 		graphEditor.activateTraversalOrderAnimation(traversalOrder);
 	}
 }
@@ -175,7 +175,7 @@ void AlgorithmsPanel::showDijkstraOptions()
 void AlgorithmsPanel::showColoringOptions()
 {
 	if (ImGui::Button("Execute")) {
-		const auto [traversalOrder, nodesColorsIdxs] = ga::coloring(graph);
+		const auto [traversalOrder, nodesColorsIdxs] { ga::coloring(graph) };
 		graphEditor.activateTraversalOrderAnimation(traversalOrder, nodesColorsIdxs);
 	}
 }
@@ -183,7 +183,7 @@ void AlgorithmsPanel::showColoringOptions()
 void AlgorithmsPanel::showFindIslandsOptions()
 {
 	if (ImGui::Button("Execute")) {
-		const auto [traversalOrder, nodesColorsIdxs] = ga::findIslands(graph);
+		const auto [traversalOrder, nodesColorsIdxs] { ga::findIslands(graph) };
 		graphEditor.activateTraversalOrderAnimation(traversalOrder, nodesColorsIdxs);
 	}
 }
@@ -191,7 +191,7 @@ void AlgorithmsPanel::showFindIslandsOptions()
 void AlgorithmsPanel::showKruskalMSTOptions()
 {
 	if (ImGui::Button("Execute")) {
-		const auto traversalOrder = ga::kruskalMST(graph);
+		const auto traversalOrder{ ga::kruskalMST(graph) };
 		graphEditor.activateTraversalOrderAnimation(traversalOrder);
 	}
 }
@@ -199,7 +199,7 @@ void AlgorithmsPanel::showKruskalMSTOptions()
 void AlgorithmsPanel::showNodesDegreesOptions()
 {
 	if (ImGui::Button("Execute")) {
-		const auto [traversalOrder, nodesColorsIdxs] = ga::nodesDegrees(graph);
+		const auto [traversalOrder, nodesColorsIdxs] { ga::nodesDegrees(graph) };
 		graphEditor.activateTraversalOrderAnimation(traversalOrder, nodesColorsIdxs);
 	}
 }
