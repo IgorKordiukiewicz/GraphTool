@@ -16,6 +16,12 @@
     <Filter Include="Source Files\3rdParty">
       <UniqueIdentifier>{dd47e432-c21a-4b33-b60d-e3ff47d075a6}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\3rdParty">
+      <UniqueIdentifier>{7fc97be3-a0a5-4757-82b0-127481f08662}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Tests">
+      <UniqueIdentifier>{5f0f4b77-66ba-4644-ace7-63103141c31b}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -72,6 +78,21 @@
     <ClCompile Include="Source\Animations.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Tests\GraphTest.cpp">
+      <Filter>Tests</Filter>
+    </ClCompile>
+    <ClCompile Include="Tests\EventTest.cpp">
+      <Filter>Tests</Filter>
+    </ClCompile>
+    <ClCompile Include="Tests\GraphNodeShapeTest.cpp">
+      <Filter>Tests</Filter>
+    </ClCompile>
+    <ClCompile Include="Tests\GraphEdgeShapeTest.cpp">
+      <Filter>Tests</Filter>
+    </ClCompile>
+    <ClCompile Include="Tests\GraphAlgorithmsTest.cpp">
+      <Filter>Tests</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Include\Application.hpp">
@@ -109,6 +130,9 @@
     </ClInclude>
     <ClInclude Include="Include\Animations.hpp">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="3rdParty\doctest.h">
+      <Filter>Header Files\3rdParty</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

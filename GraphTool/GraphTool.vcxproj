@@ -164,8 +164,14 @@
     <ClCompile Include="Source\GraphNodeShape.cpp" />
     <ClCompile Include="Source\ResourceManager.cpp" />
     <ClCompile Include="Source\Utilities.cpp" />
+    <ClCompile Include="Tests\EventTest.cpp" />
+    <ClCompile Include="Tests\GraphAlgorithmsTest.cpp" />
+    <ClCompile Include="Tests\GraphEdgeShapeTest.cpp" />
+    <ClCompile Include="Tests\GraphNodeShapeTest.cpp" />
+    <ClCompile Include="Tests\GraphTest.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="3rdParty\doctest.h" />
     <ClInclude Include="Include\AlgorithmsPanel.hpp" />
     <ClInclude Include="Include\Animations.hpp" />
     <ClInclude Include="Include\Application.hpp" />

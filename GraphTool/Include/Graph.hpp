@@ -10,7 +10,7 @@ class Node
 {
 public:
 	Node(int id)
-		: id(id) {}
+		: id{ id } {}
 
 	const int id{ 0 };
 };

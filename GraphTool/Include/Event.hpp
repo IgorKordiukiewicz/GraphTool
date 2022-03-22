@@ -15,7 +15,7 @@ public:
 			}));
 	}
 
-	inline void disconnect(std::string_view delegateName)
+	inline void disconnect(const std::string& delegateName)
 	{
 		delegates.erase(delegateName);
 	}
